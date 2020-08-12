@@ -1,2 +1,7 @@
 include ':app'
-rootProject.name = "LongRoad"
+
+//Module
+ext.module_dir = 'module'
+
+include ':engine'
+project(':engine').projectDir = new File(settingsDir, "$module_dir/engine")
