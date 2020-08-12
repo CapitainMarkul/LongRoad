@@ -1,0 +1,26 @@
+project.ext {
+    applicationDebugSuffix = ".debug"
+
+    minSdkVersion = 21
+    compileSdkVersion = 29
+    targetSdkVersion = compileSdkVersion
+    buildToolsVersion = "29.0.2"
+
+    def defaultVersionCode = 001
+    versionCode = System.getenv("BUILD_NUMBER") as Integer ?: defaultVersionCode
+
+    def defaultVersionName = '0.001'
+    versionName = System.getenv("VERSION") as String ?: defaultVersionName
+
+    proguardDebug = System.getenv("PROGUARD_DEBUG") as Boolean ?: false
+
+    javaVersion = JavaVersion.VERSION_1_8
+
+    //Support
+    appCompatVersion = "1.2.0"
+
+    daggerVersion = "2.25.4"
+    timberVersion = '4.7.1'
+
+    leakCanaryVersion = "2.0"
+}
