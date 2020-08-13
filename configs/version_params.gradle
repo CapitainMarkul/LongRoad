@@ -1,0 +1,20 @@
+ext.versions = [
+        appCompatVersion : "1.2.0",
+        daggerVersion    : "2.25.4",
+        timberVersion    : "4.7.1",
+        leakCanaryVersion: "2.0"
+]
+
+ext.support = [
+        supportLibrary: "androidx.appcompat:appcompat:$versions.appCompatVersion"
+]
+
+ext.debug = [
+        timber    : "com.jakewharton.timber:timber:$versions.timberVersion",
+        leakCanary: "com.squareup.leakcanary:leakcanary-android:$versions.leakCanaryVersion"
+]
+
+ext.dagger2 = [
+        daggerLibrary: "com.google.dagger:dagger:$versions.daggerVersion",
+        daggerKapt   : "com.google.dagger:dagger-compiler:$versions.daggerVersion"
+]

@@ -41,8 +41,8 @@ android {
 }
 
 dependencies {
-    //Timber
-    implementation "com.jakewharton.timber:timber:$rootProject.ext.timberVersion"
+    implementation debug.timber
+    debugImplementation debug.leakCanary
 
     //Kotlin
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$rootProject.ext.kotlinVersion"

@@ -15,12 +15,4 @@ project.ext {
     proguardDebug = System.getenv("PROGUARD_DEBUG") as Boolean ?: false
 
     javaVersion = JavaVersion.VERSION_1_8
-
-    //Support
-    appCompatVersion = "1.2.0"
-
-    daggerVersion = "2.25.4"
-    timberVersion = '4.7.1'
-
-    leakCanaryVersion = "2.0"
 }

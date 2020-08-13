@@ -5,3 +5,6 @@ ext.module_dir = 'module'
 
 include ':engine'
 project(':engine').projectDir = new File(settingsDir, "$module_dir/engine")
+
+include ':engine_support'
+project(':engine_support').projectDir = new File(settingsDir, "$module_dir/engine_support")
