@@ -15,23 +15,41 @@ class AarGeneratorPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         logAarPlugin("Starting for $project")
 
+        project.task("aar_test") { task ->
+            // Действие ДО выполнения задачи
+            task.doFirst {
+                logAarPlugin("aar_test_doFirst")
+            }
+
+            // Зависимость от других задач. Основная задача будет выполнена только после
+            // выполнения указанных в зависимости
+//            task.dependsOn
+
+            // Действие ДО выполнения задачи
+            task.doLast {
+                logAarPlugin("aar_test_doFirst")
+            }
+        }
+
+
+
         // Переменная, которую укажем в root.build.gradle
         val extension = project.extensions.create<AarGeneratorPluginExtension>(
             AAR_GENERATOR_PLUGIN_NAME, AarGeneratorPluginExtension::class.java
         )
         project.afterEvaluate {
-            logAarPlugin("AfterEvaluate : ${extension.packageNamePlugin}")
-
-            project.allprojects {
-                val mavenPlugin = MavenPublishPlugin::class.java
-                logAarPlugin("Run for $it")
-
-                logAarPlugin("Apply ${mavenPlugin.canonicalName} plugin for $it")
-                it.pluginManager.apply(mavenPlugin)
-                logAarPlugin("Plugin ${mavenPlugin.canonicalName} applied for $it || ${it.project.plugins.hasPlugin(mavenPlugin)}")
-            }
-
-            logAarPlugin("Finished $project")
+//            logAarPlugin("AfterEvaluate : ${extension.packageNamePlugin}")
+//
+//            project.allprojects {
+//                val mavenPlugin = MavenPublishPlugin::class.java
+//                logAarPlugin("Run for $it")
+//
+//                logAarPlugin("Apply ${mavenPlugin.canonicalName} plugin for $it")
+//                it.pluginManager.apply(mavenPlugin)
+//                logAarPlugin("Plugin ${mavenPlugin.canonicalName} applied for $it || ${it.project.plugins.hasPlugin(mavenPlugin)}")
+//            }
+//
+//            logAarPlugin("Finished $project")
         }
     }
 

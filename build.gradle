@@ -5,12 +5,12 @@ apply from: "configs/version_params.gradle"
 
 apply plugin: 'aar_generator_plugin'
 aarGeneratorPlugin {
-    packageNamePlugin = "vse.poluchilos"
+    packageNamePlugin = "ru.success.exit"
 }
 
-task debug_aar_plugin_task { task ->
-    println("============== Test RUN! $task.name ==============")
-}
+//task debug_aar_plugin_task { task ->
+//    println("============== Test RUN! $task.name ==============")
+//}
 
 
 buildscript {
