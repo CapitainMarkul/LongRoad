@@ -1,37 +1,47 @@
 package ru.aar_generator_plugin.gradle
 
-import com.android.build.gradle.AppExtension
+import com.android.build.gradle.internal.tasks.factory.registerTask
+import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.publish.maven.MavenPublication
-import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
+import ru.aar_generator_plugin.gradle.log.PluginLogger
+import ru.aar_generator_plugin.gradle.sub_tasks.AarDependencyTask
+import ru.aar_generator_plugin.gradle.sub_tasks.AarMainTask
 
-class AarGeneratorPlugin : Plugin<Project> {
-    private companion object {
-        const val AAR_GENERATOR_PLUGIN_TAG = "AAR_GENERATOR_PLUGIN"
-        const val AAR_GENERATOR_PLUGIN_NAME = "aarGeneratorPlugin"
-    }
+//class GradleScript : Plugin<Gradle> {
+//    override fun apply(target: Gradle) {
+//        target.settingsEvaluated {
+////            it.settings.a
+//        }
+//    }
+//}
+//
+//class GradleSettings : Plugin<Settings> {
+//    override fun apply(target: Settings) {
+//        target.include("aar_generator_plugin")
+//        target.
+//        target.gradle.includedBuild("aar_generator_plugin")
+//    }
+//}
+
+class AarGeneratorPlugin : Plugin<Project>, PluginLogger {
+    override val tag: String
+        get() = AAR_GENERATOR_PLUGIN_TAG
 
     override fun apply(project: Project) {
-        logAarPlugin("Starting for $project")
+        logStartRegion("Starting apply for $project")
 
-        project.task("aar_test") { task ->
-            // Действие ДО выполнения задачи
-            task.doFirst {
-                logAarPlugin("aar_test_doFirst")
-            }
+        project.afterEvaluate {
+            // Регистрируем созданные Task'и. Регистрация происходит в момент Sync'а проекта
+            with(it.tasks) {
+                /* Base Task'и */
+                getByName("clean").logExecuteBaseTask()
 
-            // Зависимость от других задач. Основная задача будет выполнена только после
-            // выполнения указанных в зависимости
-//            task.dependsOn
-
-            // Действие ДО выполнения задачи
-            task.doLast {
-                logAarPlugin("aar_test_doFirst")
+                /* Custom Task'и */
+                registerTask(AarMainTask.taskCreator())
+                registerTask(AarDependencyTask.taskCreator())
             }
         }
-
-
 
         // Переменная, которую укажем в root.build.gradle
         val extension = project.extensions.create<AarGeneratorPluginExtension>(
@@ -51,13 +61,27 @@ class AarGeneratorPlugin : Plugin<Project> {
 //
 //            logAarPlugin("Finished $project")
         }
-    }
 
-    private fun logAarPlugin(message: String) {
-        println("|$AAR_GENERATOR_PLUGIN_TAG| >> $message")
+        logEndRegion("End apply for $project")
     }
 
     open class AarGeneratorPluginExtension {
         var packageNamePlugin: String? = null
+        var testPlugin: Test? = null
+    }
+
+    enum class Test {
+        FIRST, SECOND
+    }
+
+    private class AarTestDependencyTask : DefaultTask() {
+
+    }
+
+    companion object {
+        private const val AAR_GENERATOR_PLUGIN_TAG = "AAR_GENERATOR_PLUGIN"
+        private const val AAR_GENERATOR_PLUGIN_NAME = "aarGeneratorPlugin"
+
+        const val AAR_GENERATOR_PLUGIN_TASK_GROUP = "aar generator task group"
     }
 }
