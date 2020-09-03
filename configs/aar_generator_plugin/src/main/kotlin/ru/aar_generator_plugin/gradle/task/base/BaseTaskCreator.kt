@@ -1,4 +1,4 @@
-package ru.aar_generator_plugin.gradle.sub_tasks.base
+package ru.aar_generator_plugin.gradle.task.base
 
 import com.android.build.gradle.internal.tasks.factory.TaskCreationAction
 import org.gradle.api.Task

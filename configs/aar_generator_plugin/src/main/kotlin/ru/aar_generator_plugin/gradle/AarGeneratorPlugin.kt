@@ -5,10 +5,11 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import ru.aar_generator_plugin.gradle.PluginConfigurator.AarGeneratorPluginConfig
 import ru.aar_generator_plugin.gradle.log.PluginLogger
-import ru.aar_generator_plugin.gradle.sub_tasks.AarDependencyTask
-import ru.aar_generator_plugin.gradle.sub_tasks.AarMainTask
-import ru.aar_generator_plugin.gradle.sub_tasks.base.BUNDLE_DEBUG_AAR_FOR_TEST
-import ru.aar_generator_plugin.gradle.sub_tasks.base.CLEAN_PROJECT
+import ru.aar_generator_plugin.gradle.task.AarMainTask
+import ru.aar_generator_plugin.gradle.task.sub.AarDependencyTask
+import ru.aar_generator_plugin.gradle.task.sub.AarPublishTask
+import ru.aar_generator_plugin.gradle.task.base.PLUGIN_ANDROID_LIBRARY
+import ru.aar_generator_plugin.gradle.util.hasPlugin
 
 class AarGeneratorPlugin : Plugin<Project>, PluginLogger {
     override val tag: String
@@ -31,34 +32,6 @@ class AarGeneratorPlugin : Plugin<Project>, PluginLogger {
 
         }
 
-        project.subprojects { foreachItem ->
-            foreachItem.afterEvaluate {
-                val isAndroidProject =
-                    (it.pluginManager.hasPlugin("com.android.application") ||
-                            it.pluginManager.hasPlugin("com.android.library"))
-
-                if (isAndroidProject) {
-                    //TODO()
-                }
-            }
-        }
-
-
-        project.afterEvaluate {
-//            logAarPlugin("AfterEvaluate : ${extension.packageNamePlugin}")
-//
-//            project.allprojects {
-//                val mavenPlugin = MavenPublishPlugin::class.java
-//                logAarPlugin("Run for $it")
-//
-//                logAarPlugin("Apply ${mavenPlugin.canonicalName} plugin for $it")
-//                it.pluginManager.apply(mavenPlugin)
-//                logAarPlugin("Plugin ${mavenPlugin.canonicalName} applied for $it || ${it.project.plugins.hasPlugin(mavenPlugin)}")
-//            }
-//
-//            logAarPlugin("Finished $project")
-        }
-
         logEndRegion("End apply for $project")
     }
 
@@ -74,13 +47,14 @@ class AarGeneratorPlugin : Plugin<Project>, PluginLogger {
         project.afterEvaluate { rootProject ->
             rootProject.subprojects { subProject ->
                 subProject.afterEvaluate { evaluateSubProject ->
-                    if (evaluateSubProject.pluginManager.hasPlugin("com.android.library")) {
+                    if (evaluateSubProject.hasPlugin(PLUGIN_ANDROID_LIBRARY)) {
                         logSimple("Configure $evaluateSubProject")
 
                         with(evaluateSubProject.tasks) {
                             /* Register Custom Task'и */
                             registerTask(AarMainTask.taskCreator(extension))
                             registerTask(AarDependencyTask.taskCreator())
+                            registerTask(AarPublishTask.taskCreator(extension))
                         }
                     }
                 }

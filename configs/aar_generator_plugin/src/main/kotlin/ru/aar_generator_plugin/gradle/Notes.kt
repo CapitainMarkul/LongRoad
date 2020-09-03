@@ -141,3 +141,17 @@ class GradleSettings : Plugin<Settings> {
         .mustRunAfter(getByName(CLEAN_PROJECT))
         .logExecuteBaseTask()
 } */
+
+/*** Check plugin available */
+/* project.subprojects {
+    foreachItem ->
+    foreachItem.afterEvaluate {
+        val isAndroidProject =
+            (it.pluginManager.hasPlugin("com.android.application") ||
+                    it.pluginManager.hasPlugin("com.android.library"))
+
+        if (isAndroidProject) {
+            //TODO()
+        }
+    }
+} */
