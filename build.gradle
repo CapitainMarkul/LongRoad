@@ -2,16 +2,10 @@
 apply from: "configs/project_params.gradle"
 apply from: "configs/version_params.gradle"
 
-
 apply plugin: 'aar_generator_plugin'
-aarGeneratorPlugin {
-    packageNamePlugin = "ru.success.exit"
+aarGeneratorPlugin { cfg ->
+    cfg.configureForDebug()
 }
-
-//task debug_aar_plugin_task { task ->
-//    println("============== Test RUN! $task.name ==============")
-//}
-
 
 buildscript {
     ext.kotlinVersion = '1.3.72'

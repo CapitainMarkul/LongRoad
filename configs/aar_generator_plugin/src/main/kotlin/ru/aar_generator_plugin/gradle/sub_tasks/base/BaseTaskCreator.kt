@@ -4,7 +4,8 @@ import com.android.build.gradle.internal.tasks.factory.TaskCreationAction
 import org.gradle.api.Task
 import ru.aar_generator_plugin.gradle.AarGeneratorPlugin
 
-abstract class BaseTaskCreator<T : Task>(taskName: String, taskClass: Class<T>) : TaskCreationAction<T>() {
+abstract class BaseTaskCreator<T : Task>(taskName: String, taskClass: Class<T>) :
+    TaskCreationAction<T>() {
     override val name: String = taskName
     override val type: Class<T> = taskClass
 
@@ -14,14 +15,11 @@ abstract class BaseTaskCreator<T : Task>(taskName: String, taskClass: Class<T>) 
             baseTaskConfigure()
 
             // Установка зависимостей Task'и
-            setupDependency(task)
+            setupDependency().invoke(task)
         }
     }
 
-    open fun setupDependency(task: T) : Task {
-        // Чистка директорий проекта
-        return task.dependsOn("clean")
-    }
+    open fun setupDependency(): (T: Task) -> Task = { it }
 }
 
 private fun Task.baseTaskConfigure() {

@@ -117,3 +117,27 @@ tasks.register("test") {
 /* const val AAR_GENERATOR_PLUGIN_TASK_GROUP = "aar generator task group"
    Необходимо, чтобы они отображались в общем списке тасок проекта
  */
+
+/*** Бывают разные типы плагинов */
+/*
+class GradleScript : Plugin<Gradle> {
+    override fun apply(target: Gradle) {
+        TODO()
+    }
+}
+
+class GradleSettings : Plugin<Settings> {
+    override fun apply(target: Settings) {
+        TODO()
+    }
+}
+*/
+
+/*** Register Base Tasks For Project */
+/* extension.targetPlatform?.platformName?.let {
+    val bundleAarTask = BUNDLE_DEBUG_AAR_FOR_TEST.format(it)
+    register(bundleAarTask)
+    getByName(bundleAarTask)
+        .mustRunAfter(getByName(CLEAN_PROJECT))
+        .logExecuteBaseTask()
+} */

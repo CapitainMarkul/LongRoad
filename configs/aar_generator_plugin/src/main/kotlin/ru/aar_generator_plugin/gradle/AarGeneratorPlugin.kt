@@ -1,28 +1,14 @@
 package ru.aar_generator_plugin.gradle
 
 import com.android.build.gradle.internal.tasks.factory.registerTask
-import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import ru.aar_generator_plugin.gradle.PluginConfigurator.AarGeneratorPluginConfig
 import ru.aar_generator_plugin.gradle.log.PluginLogger
 import ru.aar_generator_plugin.gradle.sub_tasks.AarDependencyTask
 import ru.aar_generator_plugin.gradle.sub_tasks.AarMainTask
-
-//class GradleScript : Plugin<Gradle> {
-//    override fun apply(target: Gradle) {
-//        target.settingsEvaluated {
-////            it.settings.a
-//        }
-//    }
-//}
-//
-//class GradleSettings : Plugin<Settings> {
-//    override fun apply(target: Settings) {
-//        target.include("aar_generator_plugin")
-//        target.
-//        target.gradle.includedBuild("aar_generator_plugin")
-//    }
-//}
+import ru.aar_generator_plugin.gradle.sub_tasks.base.BUNDLE_DEBUG_AAR_FOR_TEST
+import ru.aar_generator_plugin.gradle.sub_tasks.base.CLEAN_PROJECT
 
 class AarGeneratorPlugin : Plugin<Project>, PluginLogger {
     override val tag: String
@@ -31,22 +17,33 @@ class AarGeneratorPlugin : Plugin<Project>, PluginLogger {
     override fun apply(project: Project) {
         logStartRegion("Starting apply for $project")
 
-        project.afterEvaluate {
-            // Регистрируем созданные Task'и. Регистрация происходит в момент Sync'а проекта
-            with(it.tasks) {
-                /* Base Task'и */
-                getByName("clean").logExecuteBaseTask()
+        // Читаем конфигурацию, которую настроили в root.build.gradle
+        val extension = project.extensions.create<PluginConfigurator>(
+            AAR_GENERATOR_PLUGIN_NAME, PluginConfigurator::class.java
+        )
 
-                /* Custom Task'и */
-                registerTask(AarMainTask.taskCreator())
-                registerTask(AarDependencyTask.taskCreator())
+        project.afterEvaluate {
+            // Первоначальная конфигурация плагина
+            setupConfiguration(it, extension.getCurrentConfiguration())
+
+            // Регистрируем созданные Task'и. Регистрация происходит в момент Sync'а проекта
+            taskConfigureAndRegister(it, extension.getCurrentConfiguration())
+
+        }
+
+        project.subprojects { foreachItem ->
+            foreachItem.afterEvaluate {
+                val isAndroidProject =
+                    (it.pluginManager.hasPlugin("com.android.application") ||
+                            it.pluginManager.hasPlugin("com.android.library"))
+
+                if (isAndroidProject) {
+                    //TODO()
+                }
             }
         }
 
-        // Переменная, которую укажем в root.build.gradle
-        val extension = project.extensions.create<AarGeneratorPluginExtension>(
-            AAR_GENERATOR_PLUGIN_NAME, AarGeneratorPluginExtension::class.java
-        )
+
         project.afterEvaluate {
 //            logAarPlugin("AfterEvaluate : ${extension.packageNamePlugin}")
 //
@@ -65,17 +62,30 @@ class AarGeneratorPlugin : Plugin<Project>, PluginLogger {
         logEndRegion("End apply for $project")
     }
 
-    open class AarGeneratorPluginExtension {
-        var packageNamePlugin: String? = null
-        var testPlugin: Test? = null
+
+    private fun setupConfiguration(project: Project, extension: AarGeneratorPluginConfig) {
+        logSimple("Selected config: ${extension.targetPlatform}")
     }
 
-    enum class Test {
-        FIRST, SECOND
-    }
+    private fun taskConfigureAndRegister(project: Project, extension: AarGeneratorPluginConfig) {
+//        project.showAllSubProjects()
+//        project.showAllTasks(false)
 
-    private class AarTestDependencyTask : DefaultTask() {
+        project.afterEvaluate { rootProject ->
+            rootProject.subprojects { subProject ->
+                subProject.afterEvaluate { evaluateSubProject ->
+                    if (evaluateSubProject.pluginManager.hasPlugin("com.android.library")) {
+                        logSimple("Configure $evaluateSubProject")
 
+                        with(evaluateSubProject.tasks) {
+                            /* Register Custom Task'и */
+                            registerTask(AarMainTask.taskCreator(extension))
+                            registerTask(AarDependencyTask.taskCreator())
+                        }
+                    }
+                }
+            }
+        }
     }
 
     companion object {
