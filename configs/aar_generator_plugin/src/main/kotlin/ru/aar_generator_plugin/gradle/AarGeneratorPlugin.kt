@@ -29,7 +29,6 @@ class AarGeneratorPlugin : Plugin<Project>, PluginLogger {
 
             // Регистрируем созданные Task'и. Регистрация происходит в момент Sync'а проекта
             taskConfigureAndRegister(it, extension.getCurrentConfiguration())
-
         }
 
         logEndRegion("End apply for $project")
@@ -50,8 +49,8 @@ class AarGeneratorPlugin : Plugin<Project>, PluginLogger {
                     if (evaluateSubProject.hasPlugin(PLUGIN_ANDROID_LIBRARY)) {
                         logSimple("Configure $evaluateSubProject")
 
+                        /* Register Custom Task'и */
                         with(evaluateSubProject.tasks) {
-                            /* Register Custom Task'и */
                             registerTask(AarMainTask.taskCreator(extension))
                             registerTask(AarDependencyTask.taskCreator())
                             registerTask(AarPublishTask.taskCreator(extension))
