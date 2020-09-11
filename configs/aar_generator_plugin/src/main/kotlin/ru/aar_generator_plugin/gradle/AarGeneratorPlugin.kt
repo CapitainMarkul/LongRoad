@@ -53,7 +53,7 @@ class AarGeneratorPlugin : Plugin<Project>, PluginLogger {
                         with(evaluateSubProject.tasks) {
                             registerTask(AarMainTask.taskCreator(extension))
                             registerTask(AarDependencyTask.taskCreator())
-                            registerTask(AarPublishTask.taskCreator(extension))
+                            registerTask(AarPublishTask.taskCreator(evaluateSubProject, extension))
                         }
                     }
                 }

@@ -39,7 +39,7 @@ android {
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
 
-    implementation project(':engine_support')
+//    implementation project(':engine_support')
 
     implementation support.supportLibrary
 

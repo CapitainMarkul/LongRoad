@@ -13,8 +13,9 @@ ext.config_dir = 'configs'
 include ':engine'
 project(':engine').projectDir = new File(settingsDir, "$module_dir/engine")
 
-include ':engine_support'
-project(':engine_support').projectDir = new File(settingsDir, "$module_dir/engine_support")
+//TODO(Включить после доработок)
+//include ':engine_support'
+//project(':engine_support').projectDir = new File(settingsDir, "$module_dir/engine_support")
 
 //Plugin AAR
 includeBuild("$config_dir/aar_generator_plugin")
