@@ -62,7 +62,7 @@ project.task("aar_test") {
                 override val type: Class<AarDependencyTask>
                     get() = AarDependencyTask::class.java
 
-                override fun configure(task: AarDependencyTask): Unit = task.run {
+                override fun configureBeforeRun(task: AarDependencyTask): Unit = task.run {
                     // Устанавливаем группу для задачи
                     group = AarGeneratorPlugin.AAR_GENERATOR_TASK_GROUP
 

@@ -5,6 +5,9 @@ import org.gradle.api.Task
 
 interface PluginLogger {
 
+    //TODO: добавить функцию для логирования блоками
+//    fun logBlock(tag, block() -> Unit)
+
     val tag: String
         get() = this::class.java.simpleName
 

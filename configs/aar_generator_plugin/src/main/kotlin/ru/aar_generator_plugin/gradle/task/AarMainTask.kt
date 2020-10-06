@@ -3,13 +3,14 @@ package ru.aar_generator_plugin.gradle.task
 import com.android.build.gradle.internal.tasks.factory.TaskCreationAction
 import org.gradle.api.DefaultTask
 import org.gradle.api.Task
+import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
 import org.gradle.api.tasks.TaskAction
 import ru.aar_generator_plugin.gradle.PluginConfigurator.AarGeneratorPluginConfig
 import ru.aar_generator_plugin.gradle.log.PluginLogger
-import ru.aar_generator_plugin.gradle.task.sub.AarPublishTask
-import ru.aar_generator_plugin.gradle.task.base.TASK_BUNDLE_DEBUG_AAR_FOR_TEST
 import ru.aar_generator_plugin.gradle.task.base.BaseTaskCreator
+import ru.aar_generator_plugin.gradle.task.base.TASK_BUNDLE_DEBUG_AAR_FOR_TEST
 import ru.aar_generator_plugin.gradle.task.base.TASK_CLEAN_PROJECT
+import ru.aar_generator_plugin.gradle.task.sub.AarPublishTask
 
 /*** Task */
 open class AarMainTask : DefaultTask(), PluginLogger {
@@ -33,8 +34,6 @@ open class AarMainTask : DefaultTask(), PluginLogger {
                     // Действие ДО выполнения задачи
                     doFirst {
                         logSimple("aar_main_doFirst")
-
-
                     }
 
                     // Действие ПОСЛЕ выполнения задачи
@@ -44,21 +43,26 @@ open class AarMainTask : DefaultTask(), PluginLogger {
                     }
                 }
 
-                override fun setupDependency(): (T: Task) -> Task = { task ->
-                    // 0. Clean project
+                override fun setupTaskDependency(): (T: Task) -> Task = { task ->
+                    task
+/*                    // 0. Clean project
                     task.dependsOn(TASK_CLEAN_PROJECT)
 
                     // 1. Create .aar for libraries
                     pluginCfg?.targetPlatform?.platformName?.let {
                         task.dependsOn(TASK_BUNDLE_DEBUG_AAR_FOR_TEST.format(it))
 
-                        /* Собирать нужно именно поле того, как почистили папку с Build'ом.
-                         * По-умолчанию Gradle не гарантирует очередность выполнения Task'ок */
+                        *//* Собирать нужно именно поле того, как почистили папку с Build'ом.
+                         * По-умолчанию Gradle не гарантирует очередность выполнения Task'ок *//*
                         task.mustRunAfter(TASK_CLEAN_PROJECT)
                     }
 
                     // 2. Publish .aar to LocalMaven
                     task.dependsOn(AarPublishTask.TASK_NAME)
+
+                    // 3. Publish .aar to LocalMaven
+                    task.dependsOn(MavenPublishPlugin.PUBLISH_LOCAL_LIFECYCLE_TASK_NAME)
+//                        .mustRunAfter(AarPublishTask.TASK_NAME)*/
                 }
             }
     }

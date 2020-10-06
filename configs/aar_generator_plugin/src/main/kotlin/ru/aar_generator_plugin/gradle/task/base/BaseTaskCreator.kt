@@ -1,6 +1,7 @@
 package ru.aar_generator_plugin.gradle.task.base
 
 import com.android.build.gradle.internal.tasks.factory.TaskCreationAction
+import org.gradle.api.Project
 import org.gradle.api.Task
 import ru.aar_generator_plugin.gradle.AarGeneratorPlugin
 
@@ -11,15 +12,15 @@ abstract class BaseTaskCreator<T : Task>(taskName: String, taskClass: Class<T>) 
 
     override fun configure(task: T) {
         with(task) {
-            // Базовая конфигурация Task'и
+            // 0. Базовая конфигурация Task'и
             baseTaskConfigure()
 
-            // Установка зависимостей Task'и
-            setupDependency().invoke(task)
+            // 1. Установка зависимостей от сторонних Task'ок
+            setupTaskDependency().invoke(task)
         }
     }
 
-    open fun setupDependency(): (T: Task) -> Task = { it }
+    open fun setupTaskDependency(): (task: Task) -> Task = { it }
 }
 
 private fun Task.baseTaskConfigure() {
