@@ -1,9 +1,12 @@
 package ru.aar_generator_plugin.gradle
 
 import com.android.build.gradle.internal.tasks.factory.registerTask
+import org.gradle.api.JavaVersion
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
+import org.gradle.api.tasks.javadoc.Javadoc
+import org.gradle.external.javadoc.StandardJavadocDocletOptions
 import ru.aar_generator_plugin.gradle.PluginConfigurator.AarGeneratorPluginConfig
 import ru.aar_generator_plugin.gradle.log.PluginLogger
 import ru.aar_generator_plugin.gradle.task.AarMainTask
@@ -27,23 +30,56 @@ class AarGeneratorPlugin : Plugin<Project>, PluginLogger {
             AAR_GENERATOR_PLUGIN_NAME, PluginConfigurator::class.java
         )
 
-        project.afterEvaluate {
+//        project.afterEvaluate {
             // Первоначальная конфигурация плагина
-            setupConfiguration(it, extension.getCurrentConfiguration())
+//            setupConfiguration(it, extension.getCurrentConfiguration())
+
+            project.plugins.apply(MavenPublishPlugin::class.java)
+
+            project.group = "LongRoadGroup"
+            project.version = "0.0.1"
+
+//        configureSigning(project)
+        configureJavadoc(project)
+//        configureDokka(project)
+
+        project.afterEvaluate { project ->
+            val configurer = MavenPublishConfigurer(p, pom)
+
+            extension.targets.all {
+                checkNotNull(it.releaseRepositoryUrl) {
+                    "releaseRepositoryUrl of ${it.name} is required to be set"
+                }
+                configurer.configureTarget(it)
+            }
+
+            configurePublishing(project, configurer)
+        }
 
             // Регистрируем созданные Task'и. Регистрация происходит в момент Sync'а проекта
-            taskConfigureAndRegister(it, extension.getCurrentConfiguration())
-        }
+//            taskConfigureAndRegister(it, extension.getCurrentConfiguration())
+//        }
 
         logEndRegion("End apply for $project")
     }
 
-
-    private fun setupConfiguration(project: Project, extension: AarGeneratorPluginConfig) {
-        logSimple("Selected config: ${extension.targetPlatform}")
+    private fun configureJavadoc(project: Project) {
+        project.tasks.withType(Javadoc::class.java).configureEach {
+            val options = it.options as StandardJavadocDocletOptions
+            if (JavaVersion.current().isJava9Compatible) {
+                options.addBooleanOption("html5", true)
+            }
+            if (JavaVersion.current().isJava8Compatible) {
+                options.addStringOption("Xdoclint:none", "-quiet")
+            }
+        }
     }
 
-    private fun taskConfigureAndRegister(project: Project, extension: AarGeneratorPluginConfig) {
+/*    private fun setupConfiguration(project: Project, extension: AarGeneratorPluginConfig) {
+        logSimple("Selected config: ${extension.targetPlatform}")
+    }*/
+
+/*    private fun taskConfigureAndRegister(project: Project, extension: AarGeneratorPluginConfig) {
 //        project.showAllSubProjects()
 //        project.showAllTasks(false)
 
@@ -55,7 +91,7 @@ class AarGeneratorPlugin : Plugin<Project>, PluginLogger {
                     if (evaluateSubProject.hasPlugin(PLUGIN_ANDROID_LIBRARY)) {
                         logSimple("Configure $evaluateSubProject")
 
-                        /* Register Custom Task'и */
+                        *//* Register Custom Task'и *//*
                         with(evaluateSubProject.tasks) {
                             registerTask(AarMainTask.taskCreator(extension))
 //                            registerTask(AarDependencyTask.taskCreator())
@@ -67,12 +103,12 @@ class AarGeneratorPlugin : Plugin<Project>, PluginLogger {
                                     .doFirst { logSimple("clearTaskDoFirst") }
                                     .doLast { logSimple("clearTaskDoLast") }
 
-/*
+*//*
                                 val buildAarTask =
                                     getByName(TASK_BUNDLE_DEBUG_AAR_FOR_TEST.format(it))
                                         .dependsOn(clearTask)
                                         .mustRunAfter(clearTask)
-*/
+*//*
 
 //                                val buildAarTask =
 //                                    getByName(AarDependencyTask.TASK_NAME)
@@ -109,7 +145,7 @@ class AarGeneratorPlugin : Plugin<Project>, PluginLogger {
                 }
             }
         }
-    }
+    }*/
 
     companion object {
         private const val AAR_GENERATOR_PLUGIN_TAG = "AAR_GENERATOR_PLUGIN"

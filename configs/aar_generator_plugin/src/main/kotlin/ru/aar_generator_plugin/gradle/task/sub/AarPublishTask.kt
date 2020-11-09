@@ -3,7 +3,6 @@ package ru.aar_generator_plugin.gradle.task.sub
 import com.android.build.gradle.internal.tasks.factory.TaskCreationAction
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
-import org.gradle.api.Task
 import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
@@ -11,8 +10,6 @@ import org.gradle.api.tasks.TaskAction
 import ru.aar_generator_plugin.gradle.PluginConfigurator.AarGeneratorPluginConfig
 import ru.aar_generator_plugin.gradle.log.PluginLogger
 import ru.aar_generator_plugin.gradle.task.base.BaseTaskCreator
-import ru.aar_generator_plugin.gradle.task.base.PLUGIN_MAVEN_PUBLISH
-import ru.aar_generator_plugin.gradle.task.base.TASK_BUNDLE_DEBUG_AAR_FOR_TEST
 
 /*** Task */
 open class AarPublishTask : DefaultTask(), PluginLogger {
@@ -52,26 +49,34 @@ open class AarPublishTask : DefaultTask(), PluginLogger {
                             afterEvaluatedProject.properties[PUBLISH_EXTENSIONS] as PublishingExtension
 
                         /* Setup Repositories */
-                        publishing.repositories {
+//                        publishing.repositories.mavenLocal {
+//                            it.name = "LongRoad"
+////                            it.metadataSources { it.artifact() }
+//                        }
+//
+//                        /* Setup Publication options */
+//                        publishing.publications.create("LongRoadPublish", MavenPublication::class.java) { publication ->
+//                            publication.configurePomDependencies(afterEvaluatedProject, this@run)
+//                            publication.configurePublishArtifact(afterEvaluatedProject, this@run)
+//                        }
+
+                        /* Setup Repositories */
+                        publishing.repositories { repositoryHandler ->
                             logStartRegion("configurePublishRepositories Start")
-                            it.configurePublishRepositories(this@run)
+                            repositoryHandler.configurePublishRepositories(this@run)
                             logEndRegion("configurePublishRepositories End")
                         }
 
                         /* Setup Publication options */
-                        publishing.publications { publicationContainer ->
-                            publicationContainer.create(
-                                "CUSTOM_PUBLICATION_NAME",
-                                MavenPublication::class.java
-                            ) {
-                                logStartRegion("configurePublishArtifact Start")
-                                it.configurePublishArtifact(afterEvaluatedProject, this@run)
-                                it.configurePomDependencies()
-                                logEndRegion("configurePublishArtifact End")
-                            }
+                        publishing.publications.create(
+                            "CUSTOM_PUBLICATION_NAME",
+                            MavenPublication::class.java
+                        ) {
+                            logStartRegion("configurePublishArtifact Start")
+                            it.configurePomDependencies(afterEvaluatedProject, this@run)
+                            it.configurePublishArtifact(afterEvaluatedProject, this@run)
+                            logEndRegion("configurePublishArtifact End")
                         }
-
-                        publishing.publications
                     }
 
                     // Действие ПОСЛЕ выполнения задачи
@@ -88,24 +93,73 @@ open class AarPublishTask : DefaultTask(), PluginLogger {
                     } ?: task
                 }*/
 
+
                 private fun RepositoryHandler.configurePublishRepositories(logger: PluginLogger) {
-                    // Enable 'mavenLocal'
-                    mavenLocal()
-/*                    mavenLocal { mavenLocal ->
-//                      mavenLocal.artifactUrls("$buildDir/outputs/aar")
-                        mavenLocal.artifactUrls.forEach {
-                            logger.logSimple("Repository $it")
+                    logger.logSimple("${this.size}")
+
+//                    this.gradlePluginPortal {
+//                        logger.logSimple("gradlePluginPortal")
+//                    }
+//                    this.ivy {
+//                        logger.logSimple("ivy")
+//                    }
+//                    this.maven {
+//                        logger.logSimple("maven")
+//                    }
+
+                    this.mavenLocal {
+                        it.name = "LongRoad"
+                        it.artifactUrls("/home/local/TENSOR-CORP/da.pavlov1/PavlovDoc/HomeProject/LongRoad/module/engine/build/outputs/aar/engine-debug.aar")
+                    }
+//                    this.flatDir {
+//                        logger.logSimple("flatDir")
+//                    }
+
+                    logger.logSimple("${this.size}")
+
+                }
+
+                private fun MavenPublication.configurePomDependencies(
+                    project: Project,
+                    logger: PluginLogger
+                ) {
+                    pom { pom ->
+                        pom.name.set("publishPom.name")
+                        pom.description.set("publishPom.description")
+                        pom.url.set("publishPom.url")
+                        pom.inceptionYear.set("publishPom.inceptionYear")
+
+                        pom.scm {
+                            it.url.set("publishPom.scmUrl")
+                            it.connection.set("publishPom.scmConnection")
+                            it.developerConnection.set("publishPom.scmDeveloperConnection")
                         }
-                    }*/
+
+                        pom.licenses { licenses ->
+                            licenses.license {
+                                it.name.set("publishPom.licenseName")
+                                it.url.set("publishPom.licenseUrl")
+                                it.distribution.set("publishPom.licenseDistribution")
+                            }
+                        }
+
+                        pom.developers { developers ->
+                            developers.developer {
+                                it.id.set("publishPom.developerId")
+                                it.name.set("publishPom.developerName")
+                                it.url.set("publishPom.developerUrl")
+                            }
+                        }
+                    }
                 }
 
                 private fun MavenPublication.configurePublishArtifact(
                     project: Project,
                     logger: PluginLogger
                 ) {
-                    from(afterEvaluatedProject.components.findByName("debug"))
+/*                    val publication = project.publishing.publications.getByName(PUBLICATION_NAME) as MavenPublication
 
-                    logger.logSimple("Publication Name: ${this.name}")
+                    from(afterEvaluatedProject.components.findByName("debug"))
 
                     // TODO() можно добовлять выбранный BuildType (вместо '.debug')
                     artifactId =
@@ -113,62 +167,8 @@ open class AarPublishTask : DefaultTask(), PluginLogger {
                     groupId = "${project.name}.aar_group"
                     version = "0.0.1"
 
-                    //FIXME: нужно заставить работать artifact(task)
-                    val task = project.getTasksByName("bundleDebugAar", true).first()
-                    logger.logSimple("Task: ${task}")
-                    val art = artifact(task)
-                        logger.logSimple("Artifact: ${art.extension}")
-                    logger.logSimple("File: ${art.file}")
-
-//                    val aarDirectory = "$buildDir/outputs/aar/engine-debug.aar"
-//                    logSimple(aarDirectory)
-
-//                    val artifactLocal = it.artifact(aarDirectory)
-//                    logSimple(artifactLocal.toString())
-
-//                    configurations.maybeCreate("default")
-//
-//                    val fileAar = file(aarDirectory)
-//                    logStartRegion(fileAar.toString())
-//                    val publishArtifact = artifacts.add("default", fileAar)
-//
-//                    it.artifact(publishArtifact)
-                }
-
-                private fun MavenPublication.configurePomDependencies() {
-                    /*it.pom?.let { mavenPom ->
-                        mavenPom.developers {  }
-                        mavenPom.packaging = "TestPackage"
-
-                        //The publication doesn't know about our dependencies, so we have to manually add them to the pom
-                        mavenPom.withXml { xmlProvider ->
-                            val dependenciesNode = xmlProvider.asNode().appendNode("dependencies")
-
-                            project.configurations.names.forEach {
-                                logSimple("Config: $it")
-                            }
-//                                            configurationNames.each { configurationName ->
-//                                                configurations[configurationName].allDependencies.each {
-//                                                    if (it.group != null && it.name != null) {
-//                                                        def dependencyNode = dependenciesNode.appendNode('dependency')
-//                                                        dependencyNode.appendNode('groupId', it.group)
-//                                                        dependencyNode.appendNode('artifactId', it.name)
-//                                                        dependencyNode.appendNode('version', it.version)
-//
-//                                                        //If there are any exclusions in dependency
-//                                                        if (it.excludeRules.size() > 0) {
-//                                                            def exclusionsNode = dependencyNode.appendNode('exclusions')
-//                                                            it.excludeRules.each { rule ->
-//                                                                def exclusionNode = exclusionsNode.appendNode('exclusion')
-//                                                                exclusionNode.appendNode('groupId', rule.group)
-//                                                                exclusionNode.appendNode('artifactId', rule.module)
-//                                                            }
-//                                                        }
-//                                                    }
-//                                                }
-//                                            }
-                        }
-                    }*/
+                    val androidSourcesJar = project.tasks.register("androidSourcesJar", AndroidSourcesJar::class.java)
+                    artifact(androidSourcesJar)*/
                 }
             }
         }
