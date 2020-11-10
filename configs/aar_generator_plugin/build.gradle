@@ -20,6 +20,7 @@ apply plugin: 'kotlin'
 
 //For dependencies implementation
 repositories {
+    mavenCentral()
     jcenter() //Kotlin
     google() //Gradle plugin
 }
@@ -65,3 +66,13 @@ gradlePlugin {
         }
     }
 }
+
+//pluginBundle {
+//    plugins {
+//        mavenPublishPlugin {
+//            displayName = "POM_NAME"
+//            tags = ['gradle', 'android', 'kotlin', 'maven', 'publish', 'library']
+//            description = "POM_DESCRIPTION"
+//        }
+//    }
+//}

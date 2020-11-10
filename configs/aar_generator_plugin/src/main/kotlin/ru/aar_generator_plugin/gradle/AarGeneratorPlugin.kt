@@ -1,26 +1,20 @@
 package ru.aar_generator_plugin.gradle
 
-import com.android.build.gradle.internal.tasks.factory.registerTask
 import org.gradle.api.JavaVersion
+import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
 import org.gradle.api.tasks.javadoc.Javadoc
 import org.gradle.external.javadoc.StandardJavadocDocletOptions
-import ru.aar_generator_plugin.gradle.PluginConfigurator.AarGeneratorPluginConfig
+import org.gradle.util.VersionNumber
 import ru.aar_generator_plugin.gradle.log.PluginLogger
-import ru.aar_generator_plugin.gradle.task.AarMainTask
-import ru.aar_generator_plugin.gradle.task.base.PLUGIN_ANDROID_LIBRARY
-import ru.aar_generator_plugin.gradle.task.base.PLUGIN_MAVEN_PUBLISH
-import ru.aar_generator_plugin.gradle.task.base.TASK_BUNDLE_DEBUG_AAR_FOR_TEST
-import ru.aar_generator_plugin.gradle.task.base.TASK_CLEAN_PROJECT
-import ru.aar_generator_plugin.gradle.task.sub.AarDependencyTask
-import ru.aar_generator_plugin.gradle.task.sub.AarPublishTask
-import ru.aar_generator_plugin.gradle.util.hasPlugin
 
 class AarGeneratorPlugin : Plugin<Project>, PluginLogger {
     override val tag: String
         get() = AAR_GENERATOR_PLUGIN_TAG
+
+    private val LOCAL_TARGET = "installArchives"
 
     override fun apply(project: Project) {
         logStartRegion("Starting apply for $project")
@@ -30,11 +24,16 @@ class AarGeneratorPlugin : Plugin<Project>, PluginLogger {
             AAR_GENERATOR_PLUGIN_NAME, PluginConfigurator::class.java
         )
 
-//        project.afterEvaluate {
-            // Первоначальная конфигурация плагина
-//            setupConfiguration(it, extension.getCurrentConfiguration())
+//        val gradleVersion = VersionNumber.parse(p.gradle.gradleVersion)
+//        if (gradleVersion < VersionNumber(MINIMUM_GRADLE_MAJOR, MINIMUM_GRADLE_MINOR, MINIMUM_GRADLE_MICRO, null)) {
+//            throw IllegalArgumentException("You need gradle version 6.6.0 or higher")
+//        }
 
             project.plugins.apply(MavenPublishPlugin::class.java)
+
+        val pom = MavenPublishPom.fromProject(project)
+//        project.group = pom.groupId
+//        project.version = pom.version
 
             project.group = "LongRoadGroup"
             project.version = "0.0.1"
@@ -43,17 +42,31 @@ class AarGeneratorPlugin : Plugin<Project>, PluginLogger {
         configureJavadoc(project)
 //        configureDokka(project)
 
-        project.afterEvaluate { project ->
-            val configurer = MavenPublishConfigurer(p, pom)
+        project.afterEvaluate { projectAfterEvaluate ->
+            val configurer = AarPublishConfigurer(project)
 
-            extension.targets.all {
+            val localTarget = MavenPublishTarget(
+                LOCAL_TARGET,
+                releaseRepositoryUrl = project.repositories.mavenLocal().url.toASCIIString(),
+                signing = false
+            )
+
+            val targets: NamedDomainObjectContainer<MavenPublishTarget> =
+                project.container(MavenPublishTarget::class.java) { MavenPublishTarget(it) }.apply {
+//            add(defaultTarget)
+                    add(localTarget)
+                }
+
+            targets.all {
                 checkNotNull(it.releaseRepositoryUrl) {
                     "releaseRepositoryUrl of ${it.name} is required to be set"
                 }
                 configurer.configureTarget(it)
             }
 
-            configurePublishing(project, configurer)
+            if(projectAfterEvaluate.plugins.hasPlugin("com.android.library")) {
+                configurer.configureAndroidArtifacts()
+            }
         }
 
             // Регистрируем созданные Task'и. Регистрация происходит в момент Sync'а проекта

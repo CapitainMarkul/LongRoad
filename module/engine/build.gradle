@@ -24,6 +24,10 @@ apply plugin: 'kotlin-kapt'
 //    }
 //}
 
+apply plugin: 'aar_generator_plugin'
+aarGeneratorPlugin { cfg ->
+    cfg.configureForDebug()
+}
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
