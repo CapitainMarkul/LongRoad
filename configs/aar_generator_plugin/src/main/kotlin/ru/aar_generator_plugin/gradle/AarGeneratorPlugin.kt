@@ -34,11 +34,9 @@ class AarGeneratorPlugin : Plugin<Project>, PluginLogger {
         val pom = MavenPublishPom.fromProject(project)
 //        project.group = pom.groupId
 //        project.version = pom.version
-
             project.group = "LongRoadGroup"
             project.version = "0.0.1"
 
-//        configureSigning(project)
         configureJavadoc(project)
 //        configureDokka(project)
 
@@ -53,7 +51,6 @@ class AarGeneratorPlugin : Plugin<Project>, PluginLogger {
 
             val targets: NamedDomainObjectContainer<MavenPublishTarget> =
                 project.container(MavenPublishTarget::class.java) { MavenPublishTarget(it) }.apply {
-//            add(defaultTarget)
                     add(localTarget)
                 }
 

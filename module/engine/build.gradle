@@ -3,31 +3,10 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 
-//apply plugin: 'maven-publish'
-//
-////TODO() ВОт это нужно перенести в твой код
-//project.afterEvaluate {
-//    publishing {
-//        publications {
-//            library(MavenPublication) {
-//                setGroupId "project.groupId"
-//                setArtifactId "project.artifactId"
-//                version android.defaultConfig.versionName
-//
-//                artifact bundleReleaseAar
-//
-//                println "publishing: " + groupId
-//                println "publishing: " + artifactId
-//                println "publishing: " + bundleReleaseAar
-//            }
-//        }
-//    }
+//apply plugin: 'aar_generator_plugin'
+//aarGeneratorPlugin { cfg ->
+//    cfg.configureForDebug()
 //}
-
-apply plugin: 'aar_generator_plugin'
-aarGeneratorPlugin { cfg ->
-    cfg.configureForDebug()
-}
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion

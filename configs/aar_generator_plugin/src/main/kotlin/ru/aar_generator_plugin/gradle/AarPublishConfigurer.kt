@@ -92,26 +92,6 @@ internal class AarPublishConfigurer(
         return URI.create(requireNotNull(url))
     }
 
-//    fun configureGradlePluginProject() {
-//        val sourcesJar = project.tasks.register(SOURCES_TASK, SourcesJar::class.java)
-//        val javadocsJar = project.tasks.register(JAVADOC_TASK, JavadocsJar::class.java)
-//
-//        project.publishing.publications.withType(MavenPublication::class.java).all {
-//            if (it.name == "pluginMaven") {
-//                configurePom(it)
-//                it.artifact(javadocsJar)
-//                it.artifact(sourcesJar)
-//            }
-//
-//            project.extensions.getByType(GradlePluginDevelopmentExtension::class.java).plugins.forEach { plugin ->
-//                if (it.name == "${plugin.name}PluginMarkerMaven") {
-//                    // keep the current group and artifact ids, they are based on the gradle plugin id
-//                    configurePom(it, groupId = it.groupId, artifactId = it.artifactId)
-//                }
-//            }
-//        }
-//    }
-
     fun configureAndroidArtifacts() {
         val publications = project.publishing.publications
         publications.create(PUBLICATION_NAME, MavenPublication::class.java) { publication ->
@@ -128,8 +108,6 @@ internal class AarPublishConfigurer(
 
     companion object {
         const val PUBLICATION_NAME = "maven"
-        const val JAVADOC_TASK = "javadocsJar"
-        const val SOURCES_TASK = "sourcesJar"
     }
 }
 
