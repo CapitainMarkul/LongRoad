@@ -2,12 +2,14 @@ package ru.palestra.engine_support
 
 import android.content.Context
 import android.opengl.GLSurfaceView
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.OnLifecycleEvent
+import ru.palestra.engine.test.TestLog
 import ru.palestra.engine.test.render.SimpleRender
 import ru.palestra.engine_support.utils.supportES2
 
@@ -17,6 +19,11 @@ object AndroidGameEngine : LifecycleObserver {
     private lateinit var gameView: GLSurfaceView
 
     fun createGame(context: Context, lifecycleOwner: LifecycleOwner): View {
+        Log.e("TAG", "From ru.palestra.engine_support.AndroidGameEngine")
+        TestLog().logTest()
+
+
+
         checkSupportES2(context)
 
         lifecycleOwner.lifecycle.addObserver(this)

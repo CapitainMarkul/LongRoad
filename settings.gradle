@@ -1,21 +1,15 @@
-//pluginManagement {
-//    plugins {
-//        id 'aar_generator_plugin' version '0.0.1'
-//    }
-//}
-
 include ':app'
 
 //Module
 ext.module_dir = 'module'
 ext.config_dir = 'configs'
 
-include ':engine'
-project(':engine').projectDir = new File(settingsDir, "$module_dir/engine")
+//include ':engine'
+//project(':engine').projectDir = new File(settingsDir, "$module_dir/engine")
 
 //TODO(Включить после доработок)
-include ':engine_support'
-project(':engine_support').projectDir = new File(settingsDir, "$module_dir/engine_support")
+//include ':engine_support'
+//project(':engine_support').projectDir = new File(settingsDir, "$module_dir/engine_support")
 
 //Plugin AAR
 includeBuild("$config_dir/aar_generator_plugin")

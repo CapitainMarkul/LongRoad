@@ -39,6 +39,7 @@ android {
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
 
+    implementation 'com.long_road:engine_support:0.0.1'
 //    implementation project(':engine_support')
 
     implementation support.supportLibrary

@@ -1,5 +1,5 @@
 buildscript {
-    ext.kotlinVersion = '1.3.72'
+    ext.kotlinVersion = '1.4.10'
     ext.javaVersion = JavaVersion.VERSION_1_8
 
     repositories {
@@ -13,7 +13,6 @@ buildscript {
 
 plugins {
     id 'java-gradle-plugin'
-//    id 'com.gradle.plugin-publish' version '0.12.0'
 }
 
 apply plugin: 'kotlin'
@@ -33,7 +32,6 @@ targetCompatibility = rootProject.ext.javaVersion
 
 dependencies {
     implementation gradleApi()
-//    implementation 'com.squareup:kotlinpoet:1.6.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
     implementation "com.android.tools.build:gradle:4.0.1"
 }
@@ -44,20 +42,6 @@ compileKotlin {
     }
 }
 
-//Local publishing for development purposes
-//publishing {
-//    publications {
-//        pluginPublication(MavenPublication) {
-//            from components.java
-//
-//            groupId project.group
-//            artifactId "aar_generator"
-//            version project.version
-//            }
-//    }
-//}
-
-
 gradlePlugin {
     plugins {
         aarSugarPlugin {
@@ -66,13 +50,3 @@ gradlePlugin {
         }
     }
 }
-
-//pluginBundle {
-//    plugins {
-//        mavenPublishPlugin {
-//            displayName = "POM_NAME"
-//            tags = ['gradle', 'android', 'kotlin', 'maven', 'publish', 'library']
-//            description = "POM_DESCRIPTION"
-//        }
-//    }
-//}

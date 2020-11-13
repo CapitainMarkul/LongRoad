@@ -15,11 +15,12 @@ internal class AarPublishConfigurer(
     private fun configurePom(
         publication: MavenPublication,
         groupId: String = project.group as String, // The plugin initially sets project.group to publishPom.groupId
-        artifactId: String = "publishPom.artifactId"
+        artifactId: String = project.name,
+        version: String = project.version as String
     ) {
         publication.groupId = groupId
         publication.artifactId = artifactId
-        publication.version = project.version as String // The plugin initially sets project.version to publishPom.version
+        publication.version = version
 
         @Suppress("UnstableApiUsage")
         publication.pom { pom ->

@@ -32,9 +32,7 @@ class AarGeneratorPlugin : Plugin<Project>, PluginLogger {
             project.plugins.apply(MavenPublishPlugin::class.java)
 
         val pom = MavenPublishPom.fromProject(project)
-//        project.group = pom.groupId
-//        project.version = pom.version
-            project.group = "LongRoadGroup"
+            project.group = "com.long_road"
             project.version = "0.0.1"
 
         configureJavadoc(project)

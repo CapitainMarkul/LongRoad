@@ -108,7 +108,7 @@ open class AarPublishTask : DefaultTask(), PluginLogger {
 //                    }
 
                     this.mavenLocal {
-                        it.name = "LongRoad"
+                        it.name = "LongRoad__222"
                         it.artifactUrls("/home/local/TENSOR-CORP/da.pavlov1/PavlovDoc/HomeProject/LongRoad/module/engine/build/outputs/aar/engine-debug.aar")
                     }
 //                    this.flatDir {
