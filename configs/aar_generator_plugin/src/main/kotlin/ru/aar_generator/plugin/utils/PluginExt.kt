@@ -1,8 +1,8 @@
-package ru.aar_generator_plugin.plugin.utils
+package ru.aar_generator.plugin.utils
 
 import org.gradle.api.Project
 import org.gradle.api.publish.PublishingExtension
-import ru.aar_generator_plugin.plugin.config.PluginConfigurator
+import ru.aar_generator.plugin.config.PluginConfigurator
 
 /*** Проверка подключенного плагина */
 fun Project.hasPlugin(pluginName: String) =
@@ -12,9 +12,9 @@ fun Project.hasPlugin(pluginName: String) =
 internal inline val Project.publishing: PublishingExtension
     get() = extensions.getByType(PublishingExtension::class.java)
 
-/*** Быстрый доступ к AarGeneratorPluginConfig */
-internal inline val Project.publishExtension: PluginConfigurator.AarGeneratorPluginConfig
-    get() = project.extensions.getByType(PluginConfigurator.AarGeneratorPluginConfig::class.java)
+/*** Быстрый доступ к PluginConfig */
+internal inline val Project.publishExtension: PluginConfigurator.Config
+    get() = project.extensions.getByType(PluginConfigurator.Config::class.java)
 
 internal fun Project.findMandatoryProperty(propertyName: String): String {
     val value = this.findOptionalProperty(propertyName)

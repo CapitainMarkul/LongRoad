@@ -1,4 +1,4 @@
-package ru.aar_generator_plugin.plugin
+package ru.aar_generator.plugin
 
 import org.gradle.api.JavaVersion
 import org.gradle.api.NamedDomainObjectContainer
@@ -7,11 +7,11 @@ import org.gradle.api.Project
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
 import org.gradle.api.tasks.javadoc.Javadoc
 import org.gradle.external.javadoc.StandardJavadocDocletOptions
-import ru.aar_generator_plugin.gradle.AarPublishConfigurer
-import ru.aar_generator_plugin.gradle.MavenPublishPom
-import ru.aar_generator_plugin.gradle.MavenPublishTarget
-import ru.aar_generator_plugin.plugin.config.PluginConfigurator
-import ru.aar_generator_plugin.log.PluginLogger
+import ru.aar_generator.gradle.AarPublishConfigurer
+import ru.aar_generator.gradle.MavenPublishPom
+import ru.aar_generator.gradle.MavenPublishTarget
+import ru.aar_generator.log.PluginLogger
+import ru.aar_generator.plugin.config.PluginConfigurator
 
 class AarGeneratorPlugin : Plugin<Project>,
     PluginLogger {
@@ -25,22 +25,48 @@ class AarGeneratorPlugin : Plugin<Project>,
 
         // Читаем конфигурацию, которую настроили в root.build.gradle
         val extension = project.extensions.create<PluginConfigurator>(
-            AAR_GENERATOR_PLUGIN_NAME, PluginConfigurator::class.java
+            AAR_GENERATOR_PLUGIN_CONFIG_NAME, PluginConfigurator::class.java
         )
+
+        // Устанавливаем конфигурацию для подпроектов
+        project.extensions.configure(PluginConfigurator::class.java) {
+            val extensionInner =
+                project.rootProject.extensions.getByType(PluginConfigurator::class.java)
+            extension.setCurrentConfiguration(extensionInner.getCurrentConfiguration())
+        }
+
+        project.afterEvaluate {
+            logSimple("${project.name} -> ${extension.getCurrentConfiguration().targetPlatform}")
+            logSimple("${project.name} -> ${extension.getCurrentConfiguration().applyForAllSubProjects}")
+        }
+
 
 //        val gradleVersion = VersionNumber.parse(p.gradle.gradleVersion)
 //        if (gradleVersion < VersionNumber(MINIMUM_GRADLE_MAJOR, MINIMUM_GRADLE_MINOR, MINIMUM_GRADLE_MICRO, null)) {
 //            throw IllegalArgumentException("You need gradle version 6.6.0 or higher")
 //        }
 
-            project.plugins.apply(MavenPublishPlugin::class.java)
+        project.showAllSubProjects()
+
+        project.subprojects.forEach { subProject ->
+            if (subProject.name != "app" && subProject.name != "LongRoad") {
+                subProject.afterEvaluate { afterEvaluateProject ->
+                    logSimple("Apply AarGeneratorPlugin for project: ${afterEvaluateProject.name}")
+                    afterEvaluateProject.plugins.apply(AarGeneratorPlugin::class.java)
+                }
+            }
+        }
+
+
+        logSimple("Apply MavenPublishPlugin for: " + project.name)
+        project.plugins.apply(MavenPublishPlugin::class.java)
 
         val pom =
             MavenPublishPom.fromProject(
                 project
             )
-            project.group = "com.long_road"
-            project.version = "0.0.1"
+        project.group = "com.long_road"
+        project.version = "0.0.1"
 
         configureJavadoc(project)
 //        configureDokka(project)
@@ -57,9 +83,7 @@ class AarGeneratorPlugin : Plugin<Project>,
 
             val targets: NamedDomainObjectContainer<MavenPublishTarget> =
                 project.container(MavenPublishTarget::class.java) {
-                    MavenPublishTarget(
-                        it
-                    )
+                    MavenPublishTarget(it)
                 }.apply {
                     add(localTarget)
                 }
@@ -71,12 +95,12 @@ class AarGeneratorPlugin : Plugin<Project>,
                 configurer.configureTarget(it)
             }
 
-            if(projectAfterEvaluate.plugins.hasPlugin("com.android.library")) {
+            if (projectAfterEvaluate.plugins.hasPlugin("com.android.library")) {
                 configurer.configureAndroidArtifacts()
             }
         }
 
-            // Регистрируем созданные Task'и. Регистрация происходит в момент Sync'а проекта
+        // Регистрируем созданные Task'и. Регистрация происходит в момент Sync'а проекта
 //            taskConfigureAndRegister(it, extension.getCurrentConfiguration())
 //        }
 
@@ -95,11 +119,19 @@ class AarGeneratorPlugin : Plugin<Project>,
         }
     }
 
+    companion object {
+        private const val AAR_GENERATOR_PLUGIN_TAG = "AAR_GENERATOR_PLUGIN"
+        private const val AAR_GENERATOR_PLUGIN_NAME = "aarGeneratorPlugin"
+        private const val AAR_GENERATOR_PLUGIN_CONFIG_NAME = "aarGeneratorPluginConfig"
+
+        const val AAR_GENERATOR_PLUGIN_TASK_GROUP = "aar generator task group"
+    }
+
 /*    private fun setupConfiguration(project: Project, extension: AarGeneratorPluginConfig) {
         logSimple("Selected config: ${extension.targetPlatform}")
     }*/
 
-/*    private fun taskConfigureAndRegister(project: Project, extension: AarGeneratorPluginConfig) {
+    /*    private fun taskConfigureAndRegister(project: Project, extension: AarGeneratorPluginConfig) {
 //        project.showAllSubProjects()
 //        project.showAllTasks(false)
 
@@ -111,7 +143,7 @@ class AarGeneratorPlugin : Plugin<Project>,
                     if (evaluateSubProject.hasPlugin(PLUGIN_ANDROID_LIBRARY)) {
                         logSimple("Configure $evaluateSubProject")
 
-                        *//* Register Custom Task'и *//*
+                         Register Custom Task'и
                         with(evaluateSubProject.tasks) {
                             registerTask(AarMainTask.taskCreator(extension))
 //                            registerTask(AarDependencyTask.taskCreator())
@@ -123,12 +155,12 @@ class AarGeneratorPlugin : Plugin<Project>,
                                     .doFirst { logSimple("clearTaskDoFirst") }
                                     .doLast { logSimple("clearTaskDoLast") }
 
-*//*
+
                                 val buildAarTask =
                                     getByName(TASK_BUNDLE_DEBUG_AAR_FOR_TEST.format(it))
                                         .dependsOn(clearTask)
                                         .mustRunAfter(clearTask)
-*//*
+
 
 //                                val buildAarTask =
 //                                    getByName(AarDependencyTask.TASK_NAME)
@@ -166,11 +198,4 @@ class AarGeneratorPlugin : Plugin<Project>,
             }
         }
     }*/
-
-    companion object {
-        private const val AAR_GENERATOR_PLUGIN_TAG = "AAR_GENERATOR_PLUGIN"
-        private const val AAR_GENERATOR_PLUGIN_NAME = "aarGeneratorPlugin"
-
-        const val AAR_GENERATOR_PLUGIN_TASK_GROUP = "aar generator task group"
-    }
 }

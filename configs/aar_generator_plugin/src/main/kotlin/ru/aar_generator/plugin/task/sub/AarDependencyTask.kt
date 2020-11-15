@@ -1,10 +1,10 @@
-package ru.aar_generator_plugin.plugin.task.sub
+package ru.aar_generator.plugin.task.sub
 
 import com.android.build.gradle.internal.tasks.factory.TaskCreationAction
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
-import ru.aar_generator_plugin.log.PluginLogger
-import ru.aar_generator_plugin.plugin.task.base.BaseTaskCreator
+import ru.aar_generator.log.PluginLogger
+import ru.aar_generator.plugin.task.base.BaseTaskCreator
 
 /*** Task */
 open class AarDependencyTask : DefaultTask(),

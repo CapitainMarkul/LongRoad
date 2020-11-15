@@ -3,10 +3,11 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 
-apply plugin: 'aar_generator_plugin'
-aarGeneratorPlugin { cfg ->
-    cfg.configureForDebug()
-}
+//aarGeneratorPluginConfig { cfg ->
+////    cfg.configureForDebugVariable()
+//    cfg.variantOptionApi.configureForDebugVariable()
+//    cfg.applyForAllSubProjectOptionApi.enable()
+//}
 
 project.version("0.0.1")
 

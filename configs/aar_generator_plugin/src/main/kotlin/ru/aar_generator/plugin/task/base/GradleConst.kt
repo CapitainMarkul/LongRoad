@@ -1,4 +1,4 @@
-package ru.aar_generator_plugin.plugin.task.base
+package ru.aar_generator.plugin.task.base
 
 private const val CAPITALIZE_PARAM = "%s"
 

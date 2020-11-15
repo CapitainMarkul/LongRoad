@@ -24,7 +24,7 @@ repositories {
     google() //Gradle plugin
 }
 
-group 'ru.aar_generator_plugin.gradle'
+group 'ru.aar_generator.plugin'
 version '0.0.1'
 
 sourceCompatibility = rootProject.ext.javaVersion
@@ -46,7 +46,7 @@ gradlePlugin {
     plugins {
         aarSugarPlugin {
             id = "aar_generator_plugin"
-            implementationClass = "ru.aar_generator_plugin.gradle.AarGeneratorPlugin"
+            implementationClass = "ru.aar_generator.plugin.AarGeneratorPlugin"
         }
     }
 }

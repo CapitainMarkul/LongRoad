@@ -1,4 +1,4 @@
-package ru.aar_generator_plugin.gradle
+package ru.aar_generator.gradle
 
 import org.gradle.api.Project
 

@@ -1,4 +1,4 @@
-package ru.aar_generator_plugin.plugin.task.sub
+package ru.aar_generator.plugin.task.sub
 
 import com.android.build.gradle.internal.tasks.factory.TaskCreationAction
 import org.gradle.api.DefaultTask
@@ -7,9 +7,9 @@ import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.TaskAction
-import ru.aar_generator_plugin.plugin.config.PluginConfigurator.AarGeneratorPluginConfig
-import ru.aar_generator_plugin.log.PluginLogger
-import ru.aar_generator_plugin.plugin.task.base.BaseTaskCreator
+import ru.aar_generator.plugin.config.PluginConfigurator.Config
+import ru.aar_generator.log.PluginLogger
+import ru.aar_generator.plugin.task.base.BaseTaskCreator
 
 /*** Task */
 open class AarPublishTask : DefaultTask(),
@@ -29,7 +29,7 @@ open class AarPublishTask : DefaultTask(),
         /*** Task Creator */
         fun taskCreator(
             afterEvaluatedProject: Project,
-            pluginCfg: AarGeneratorPluginConfig?
+            pluginCfg: Config?
         ): TaskCreationAction<AarPublishTask> {
             // ВАЖНО: конфигурировать плагин необходимо ДО конфигурирования Task'и
             // 0. Установка зависимостей от сторонних плагинов
