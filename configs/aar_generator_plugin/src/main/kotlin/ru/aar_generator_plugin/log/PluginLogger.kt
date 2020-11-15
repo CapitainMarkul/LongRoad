@@ -1,4 +1,4 @@
-package ru.aar_generator_plugin.gradle.log
+package ru.aar_generator_plugin.log
 
 import org.gradle.api.Project
 import org.gradle.api.Task

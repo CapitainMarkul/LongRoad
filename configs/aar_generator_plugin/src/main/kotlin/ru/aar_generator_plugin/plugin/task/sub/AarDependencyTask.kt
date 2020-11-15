@@ -1,13 +1,14 @@
-package ru.aar_generator_plugin.gradle.task.sub
+package ru.aar_generator_plugin.plugin.task.sub
 
 import com.android.build.gradle.internal.tasks.factory.TaskCreationAction
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
-import ru.aar_generator_plugin.gradle.log.PluginLogger
-import ru.aar_generator_plugin.gradle.task.base.BaseTaskCreator
+import ru.aar_generator_plugin.log.PluginLogger
+import ru.aar_generator_plugin.plugin.task.base.BaseTaskCreator
 
 /*** Task */
-open class AarDependencyTask : DefaultTask(), PluginLogger {
+open class AarDependencyTask : DefaultTask(),
+    PluginLogger {
     override val tag: String
         get() = TASK_NAME
 
@@ -21,7 +22,8 @@ open class AarDependencyTask : DefaultTask(), PluginLogger {
 
         /*** Task Creator */
         fun taskCreator(): TaskCreationAction<AarDependencyTask> =
-            object : BaseTaskCreator<AarDependencyTask>(TASK_NAME, AarDependencyTask::class.java) {
+            object : BaseTaskCreator<AarDependencyTask>(
+                TASK_NAME, AarDependencyTask::class.java) {
                 override fun configure(task: AarDependencyTask): Unit = task.run {
                     super.configure(task)
 

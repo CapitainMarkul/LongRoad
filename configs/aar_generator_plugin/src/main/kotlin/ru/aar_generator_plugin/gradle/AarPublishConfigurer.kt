@@ -4,7 +4,7 @@ import com.android.build.gradle.LibraryExtension
 import org.gradle.api.Project
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.jvm.tasks.Jar
-import ru.aar_generator_plugin.gradle.util.publishing
+import ru.aar_generator_plugin.plugin.utils.publishing
 import java.net.URI
 
 internal class AarPublishConfigurer(

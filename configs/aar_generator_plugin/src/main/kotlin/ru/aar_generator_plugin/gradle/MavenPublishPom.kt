@@ -1,8 +1,6 @@
 package ru.aar_generator_plugin.gradle
 
 import org.gradle.api.Project
-import ru.aar_generator_plugin.gradle.util.findMandatoryProperty
-import ru.aar_generator_plugin.gradle.util.findOptionalProperty
 
 internal data class MavenPublishPom(
   val groupId: String,

@@ -1,4 +1,4 @@
-package ru.aar_generator_plugin.gradle
+package ru.aar_generator_plugin.plugin.config
 
 /*** Файл конфигурации плагина */
 open class PluginConfigurator {
@@ -7,29 +7,35 @@ open class PluginConfigurator {
         var targetPlatform: PlatformVariants? = null
     }
 
-    private val currentPluginConfig = AarGeneratorPluginConfig()
+    private val currentPluginConfig =
+        AarGeneratorPluginConfig()
 
     fun getCurrentConfiguration() = currentPluginConfig
 
     /* ===== Configure methods ===== */
     fun configureForDebug() {
-        currentPluginConfig.targetPlatform = PlatformVariants.DEBUG
+        currentPluginConfig.targetPlatform =
+            PlatformVariants.DEBUG
     }
 
     fun configureForX86() {
-        currentPluginConfig.targetPlatform = PlatformVariants.X86_64
+        currentPluginConfig.targetPlatform =
+            PlatformVariants.X86_64
     }
 
     fun configureForArm64() {
-        currentPluginConfig.targetPlatform = PlatformVariants.ARM_64
+        currentPluginConfig.targetPlatform =
+            PlatformVariants.ARM_64
     }
 
     fun configureForArm7A() {
-        currentPluginConfig.targetPlatform = PlatformVariants.ARM_7A
+        currentPluginConfig.targetPlatform =
+            PlatformVariants.ARM_7A
     }
 
     fun configureForMulti() {
-        currentPluginConfig.targetPlatform = PlatformVariants.MULTI
+        currentPluginConfig.targetPlatform =
+            PlatformVariants.MULTI
     }
 
 }

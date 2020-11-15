@@ -1,4 +1,4 @@
-package ru.aar_generator_plugin.gradle
+package ru.aar_generator_plugin.plugin
 
 import org.gradle.api.JavaVersion
 import org.gradle.api.NamedDomainObjectContainer
@@ -7,10 +7,14 @@ import org.gradle.api.Project
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
 import org.gradle.api.tasks.javadoc.Javadoc
 import org.gradle.external.javadoc.StandardJavadocDocletOptions
-import org.gradle.util.VersionNumber
-import ru.aar_generator_plugin.gradle.log.PluginLogger
+import ru.aar_generator_plugin.gradle.AarPublishConfigurer
+import ru.aar_generator_plugin.gradle.MavenPublishPom
+import ru.aar_generator_plugin.gradle.MavenPublishTarget
+import ru.aar_generator_plugin.plugin.config.PluginConfigurator
+import ru.aar_generator_plugin.log.PluginLogger
 
-class AarGeneratorPlugin : Plugin<Project>, PluginLogger {
+class AarGeneratorPlugin : Plugin<Project>,
+    PluginLogger {
     override val tag: String
         get() = AAR_GENERATOR_PLUGIN_TAG
 
@@ -31,7 +35,10 @@ class AarGeneratorPlugin : Plugin<Project>, PluginLogger {
 
             project.plugins.apply(MavenPublishPlugin::class.java)
 
-        val pom = MavenPublishPom.fromProject(project)
+        val pom =
+            MavenPublishPom.fromProject(
+                project
+            )
             project.group = "com.long_road"
             project.version = "0.0.1"
 
@@ -39,7 +46,8 @@ class AarGeneratorPlugin : Plugin<Project>, PluginLogger {
 //        configureDokka(project)
 
         project.afterEvaluate { projectAfterEvaluate ->
-            val configurer = AarPublishConfigurer(project)
+            val configurer =
+                AarPublishConfigurer(project)
 
             val localTarget = MavenPublishTarget(
                 LOCAL_TARGET,
@@ -48,7 +56,11 @@ class AarGeneratorPlugin : Plugin<Project>, PluginLogger {
             )
 
             val targets: NamedDomainObjectContainer<MavenPublishTarget> =
-                project.container(MavenPublishTarget::class.java) { MavenPublishTarget(it) }.apply {
+                project.container(MavenPublishTarget::class.java) {
+                    MavenPublishTarget(
+                        it
+                    )
+                }.apply {
                     add(localTarget)
                 }
 

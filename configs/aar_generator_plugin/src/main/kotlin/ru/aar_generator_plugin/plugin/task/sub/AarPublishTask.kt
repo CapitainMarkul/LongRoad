@@ -1,4 +1,4 @@
-package ru.aar_generator_plugin.gradle.task.sub
+package ru.aar_generator_plugin.plugin.task.sub
 
 import com.android.build.gradle.internal.tasks.factory.TaskCreationAction
 import org.gradle.api.DefaultTask
@@ -7,12 +7,13 @@ import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.TaskAction
-import ru.aar_generator_plugin.gradle.PluginConfigurator.AarGeneratorPluginConfig
-import ru.aar_generator_plugin.gradle.log.PluginLogger
-import ru.aar_generator_plugin.gradle.task.base.BaseTaskCreator
+import ru.aar_generator_plugin.plugin.config.PluginConfigurator.AarGeneratorPluginConfig
+import ru.aar_generator_plugin.log.PluginLogger
+import ru.aar_generator_plugin.plugin.task.base.BaseTaskCreator
 
 /*** Task */
-open class AarPublishTask : DefaultTask(), PluginLogger {
+open class AarPublishTask : DefaultTask(),
+    PluginLogger {
     override val tag: String
         get() = TASK_NAME
 
@@ -36,7 +37,8 @@ open class AarPublishTask : DefaultTask(), PluginLogger {
 //            logStartRegion("Apply MavenPublish for project: ${evaluateSubProject.name}")
 //            afterEvaluatedProject.plugins.apply(PLUGIN_MAVEN_PUBLISH)
 
-            return object : BaseTaskCreator<AarPublishTask>(TASK_NAME, AarPublishTask::class.java) {
+            return object : BaseTaskCreator<AarPublishTask>(
+                TASK_NAME, AarPublishTask::class.java) {
                 override fun configure(task: AarPublishTask): Unit = task.run {
                     // 1. Конфигурирование Task'и
                     super.configure(task)
