@@ -3,13 +3,13 @@ package ru.aar_generator.plugin.task.sub
 import com.android.build.gradle.internal.tasks.factory.TaskCreationAction
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
-import ru.aar_generator.log.PluginLogger
+import ru.aar_generator.logger.PluginLogger
 import ru.aar_generator.plugin.task.base.BaseTaskCreator
 
 /*** Task */
 open class AarDependencyTask : DefaultTask(),
     PluginLogger {
-    override val tag: String
+    override val logTag: String
         get() = TASK_NAME
 
     @TaskAction

@@ -5,7 +5,7 @@ import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.jvm.tasks.Jar
-import ru.aar_generator.log.PluginLogger
+import ru.aar_generator.logger.PluginLogger
 import ru.aar_generator.plugin.utils.publishing
 import java.net.URI
 

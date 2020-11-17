@@ -1,5 +1,9 @@
 package ru.aar_generator.plugin.config.option.subproject
 
+/**
+ *  Интерфейс для объявления доступных настроек для конфигурации
+ *  применения плагина ко всем подпроектам.
+ **/
 interface ApplyForAllSubProjectOptionApi {
 
     /**

@@ -12,8 +12,13 @@ open class PluginConfigurator : PluginConfiguratorApi {
     class Config :
         VariantOptionApi.Variable,
         ApplyForAllSubProjectOptionApi.Variable {
-        override var targetPlatform: VariantOption.Platform? = null
+        override var targetPlatform: VariantOptionApi.Platform? = null
         override var applyForAllSubProjects: Boolean = true
+
+        fun createConfigurationLog(): String {
+            return "* targetPlatform -> $targetPlatform\n" +
+                    "* applyForAllSubProjects -> $applyForAllSubProjects"
+        }
     }
 
     private var currentPluginConfig = Config()

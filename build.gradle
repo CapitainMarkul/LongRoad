@@ -4,7 +4,6 @@ apply from: "configs/version_params.gradle"
 
 apply plugin: 'aar_generator_plugin'
 aarGeneratorPluginConfig { cfg ->
-//    cfg.configureForDebugVariable()
     cfg.variantOptionApi.configureForDebugVariable()
     cfg.applyForAllSubProjectOptionApi.enable()
 }

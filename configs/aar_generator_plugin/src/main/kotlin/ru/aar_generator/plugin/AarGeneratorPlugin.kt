@@ -7,55 +7,71 @@ import org.gradle.api.Project
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
 import org.gradle.api.tasks.javadoc.Javadoc
 import org.gradle.external.javadoc.StandardJavadocDocletOptions
+import org.gradle.util.VersionNumber
 import ru.aar_generator.gradle.AarPublishConfigurer
 import ru.aar_generator.gradle.MavenPublishPom
 import ru.aar_generator.gradle.MavenPublishTarget
-import ru.aar_generator.log.PluginLogger
+import ru.aar_generator.logger.PluginLogger
 import ru.aar_generator.plugin.config.PluginConfigurator
 
-class AarGeneratorPlugin : Plugin<Project>,
-    PluginLogger {
-    override val tag: String
-        get() = AAR_GENERATOR_PLUGIN_TAG
+class AarGeneratorPlugin : Plugin<Project>, PluginLogger {
 
-    private val LOCAL_TARGET = "installArchives"
+    companion object {
+        private const val AAR_GENERATOR_PLUGIN_LOG_TAG = "AAR_LOG"
+        private const val AAR_GENERATOR_PLUGIN_NAME = "aarGeneratorPlugin"
+        private const val AAR_GENERATOR_PLUGIN_CONFIG_NAME = "aarGeneratorPluginConfig"
+
+        private const val MAVEN_LOCAL_TARGET = "installArchives"
+
+        private val SUPPORT_GRADLE_VERSION = VersionNumber(6, 6, 0, null)
+
+        const val AAR_GENERATOR_PLUGIN_TASK_GROUP = "aar generator task group"
+    }
+
+    private val pluginClassName: String = AarGeneratorPlugin::class.java.simpleName
+
+    override val logTag: String
+        get() = AAR_GENERATOR_PLUGIN_LOG_TAG
 
     override fun apply(project: Project) {
-        logStartRegion("Starting apply for $project")
+        logStartRegion("Starting apply $pluginClassName for $project")
 
-        // Читаем конфигурацию, которую настроили в root.build.gradle
-        val extension = project.extensions.create<PluginConfigurator>(
+        // 0. Проверка версии Gradle
+        val gradleVersion = VersionNumber.parse(project.gradle.gradleVersion)
+        if (gradleVersion < SUPPORT_GRADLE_VERSION)
+            throw IllegalArgumentException("You need gradle version 6.6.0 or higher")
+
+        // 1. Читаем конфигурацию, которую настроили в root.build.gradle
+        val currentConfig = project.extensions.create<PluginConfigurator>(
             AAR_GENERATOR_PLUGIN_CONFIG_NAME, PluginConfigurator::class.java
         )
 
-        // Устанавливаем конфигурацию для подпроектов
+        // 2. Устанавливаем конфигурацию для подпроектов
         project.extensions.configure(PluginConfigurator::class.java) {
             val extensionInner =
                 project.rootProject.extensions.getByType(PluginConfigurator::class.java)
-            extension.setCurrentConfiguration(extensionInner.getCurrentConfiguration())
+            currentConfig.setCurrentConfiguration(extensionInner.getCurrentConfiguration())
         }
 
-        project.afterEvaluate {
-            logSimple("${project.name} -> ${extension.getCurrentConfiguration().targetPlatform}")
-            logSimple("${project.name} -> ${extension.getCurrentConfiguration().applyForAllSubProjects}")
-        }
+        // 3. Логирование конфигурации для проекта
+        project.showProjectConfiguration(currentConfig.getCurrentConfiguration())
 
-
-//        val gradleVersion = VersionNumber.parse(p.gradle.gradleVersion)
-//        if (gradleVersion < VersionNumber(MINIMUM_GRADLE_MAJOR, MINIMUM_GRADLE_MINOR, MINIMUM_GRADLE_MICRO, null)) {
-//            throw IllegalArgumentException("You need gradle version 6.6.0 or higher")
-//        }
-
+        // 4. Логирование списка подпроектов для текущего проекта
         project.showAllSubProjects()
 
+
+        // 5. Применение AarGeneratorPlugin для подпроектов текущего проекта
         project.subprojects.forEach { subProject ->
             if (subProject.name != "app" && subProject.name != "LongRoad") {
                 subProject.afterEvaluate { afterEvaluateProject ->
-                    logSimple("Apply AarGeneratorPlugin for project: ${afterEvaluateProject.name}")
                     afterEvaluateProject.plugins.apply(AarGeneratorPlugin::class.java)
                 }
             }
         }
+
+
+
+
 
 
         logSimple("Apply MavenPublishPlugin for: " + project.name)
@@ -76,7 +92,7 @@ class AarGeneratorPlugin : Plugin<Project>,
                 AarPublishConfigurer(project)
 
             val localTarget = MavenPublishTarget(
-                LOCAL_TARGET,
+                MAVEN_LOCAL_TARGET,
                 releaseRepositoryUrl = project.repositories.mavenLocal().url.toASCIIString(),
                 signing = false
             )
@@ -104,7 +120,7 @@ class AarGeneratorPlugin : Plugin<Project>,
 //            taskConfigureAndRegister(it, extension.getCurrentConfiguration())
 //        }
 
-        logEndRegion("End apply for $project")
+        logEndRegion("End apply $pluginClassName for $project")
     }
 
     private fun configureJavadoc(project: Project) {
@@ -117,14 +133,6 @@ class AarGeneratorPlugin : Plugin<Project>,
                 options.addStringOption("Xdoclint:none", "-quiet")
             }
         }
-    }
-
-    companion object {
-        private const val AAR_GENERATOR_PLUGIN_TAG = "AAR_GENERATOR_PLUGIN"
-        private const val AAR_GENERATOR_PLUGIN_NAME = "aarGeneratorPlugin"
-        private const val AAR_GENERATOR_PLUGIN_CONFIG_NAME = "aarGeneratorPluginConfig"
-
-        const val AAR_GENERATOR_PLUGIN_TASK_GROUP = "aar generator task group"
     }
 
 /*    private fun setupConfiguration(project: Project, extension: AarGeneratorPluginConfig) {
