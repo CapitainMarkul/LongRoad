@@ -8,20 +8,29 @@ import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
 import org.gradle.api.tasks.javadoc.Javadoc
 import org.gradle.external.javadoc.StandardJavadocDocletOptions
 import org.gradle.util.VersionNumber
-import ru.aar_generator.gradle.AarPublishConfigurer
-import ru.aar_generator.gradle.MavenPublishPom
-import ru.aar_generator.gradle.MavenPublishTarget
+import ru.aar_generator.plugin.publish.PublishConfigurator
+import ru.aar_generator.plugin.publish.PublishConfigurator.LocalMavenPublishTarget
 import ru.aar_generator.logger.PluginLogger
 import ru.aar_generator.plugin.config.PluginConfigurator
 
 class AarGeneratorPlugin : Plugin<Project>, PluginLogger {
+
+    //TODO: подумать, как с этим вести разработку. Мешает ли settings.gradle?
+
+    //TODO: 0. Добавить в конфигурацию возможность передать список модулей, для игнорирования
+    //TODO: 1. Скрипты для изменения build.gradle Linux/Windows
+    //https://stackoverflow.com/questions/25562207/execute-shell-script-in-gradle
+    //TODO: 2. MavenPublishPom -> заполнение информации из gradle.properties
+    //PublishConfigurator.configureFinalPom -> можно начать заполнять
+    //TODO: 3. .aar version - вынести в option, чтобы версия задавалась в конфигурации
 
     companion object {
         private const val AAR_GENERATOR_PLUGIN_LOG_TAG = "AAR_LOG"
         private const val AAR_GENERATOR_PLUGIN_NAME = "aarGeneratorPlugin"
         private const val AAR_GENERATOR_PLUGIN_CONFIG_NAME = "aarGeneratorPluginConfig"
 
-        private const val MAVEN_LOCAL_TARGET = "installArchives"
+        private const val MAVEN_AAR_GROUP = "ru.aar_generator"
+        private const val MAVEN_AAR_VERSION = "0.0.1"
 
         private val SUPPORT_GRADLE_VERSION = VersionNumber(6, 6, 0, null)
 
@@ -39,7 +48,7 @@ class AarGeneratorPlugin : Plugin<Project>, PluginLogger {
         // 0. Проверка версии Gradle
         val gradleVersion = VersionNumber.parse(project.gradle.gradleVersion)
         if (gradleVersion < SUPPORT_GRADLE_VERSION)
-            throw IllegalArgumentException("You need gradle version 6.6.0 or higher")
+            throw IllegalArgumentException("Must be gradle version 6.6.0 or higher!")
 
         // 1. Читаем конфигурацию, которую настроили в root.build.gradle
         val currentConfig = project.extensions.create<PluginConfigurator>(
@@ -59,7 +68,6 @@ class AarGeneratorPlugin : Plugin<Project>, PluginLogger {
         // 4. Логирование списка подпроектов для текущего проекта
         project.showAllSubProjects()
 
-
         // 5. Применение AarGeneratorPlugin для подпроектов текущего проекта
         project.subprojects.forEach { subProject ->
             if (subProject.name != "app" && subProject.name != "LongRoad") {
@@ -69,44 +77,31 @@ class AarGeneratorPlugin : Plugin<Project>, PluginLogger {
             }
         }
 
-
-
-
-
-
-        logSimple("Apply MavenPublishPlugin for: " + project.name)
+        // 6. Применение MavenPublishPlugin для текущего проекта
+        logSimple("Apply MavenPublishPlugin for ${project.name}")
         project.plugins.apply(MavenPublishPlugin::class.java)
 
-        val pom =
-            MavenPublishPom.fromProject(
-                project
-            )
-        project.group = "com.long_road"
-        project.version = "0.0.1"
+        // 7. Формирование базовых параметров проекта, на основе которых будет создан итоговый .aar
+        project.group = MAVEN_AAR_GROUP
+        project.version = MAVEN_AAR_VERSION
 
-        configureJavadoc(project)
-//        configureDokka(project)
+
+//        val pom = MavenPublishPom.fromProject(project)
+//        configureJavadocTask(project)
 
         project.afterEvaluate { projectAfterEvaluate ->
-            val configurer =
-                AarPublishConfigurer(project)
+            val configurer = PublishConfigurator(project)
 
-            val localTarget = MavenPublishTarget(
-                MAVEN_LOCAL_TARGET,
-                releaseRepositoryUrl = project.repositories.mavenLocal().url.toASCIIString(),
-                signing = false
-            )
-
-            val targets: NamedDomainObjectContainer<MavenPublishTarget> =
-                project.container(MavenPublishTarget::class.java) {
-                    MavenPublishTarget(it)
+            val targets: NamedDomainObjectContainer<LocalMavenPublishTarget> =
+                project.container(LocalMavenPublishTarget::class.java) {
+                    LocalMavenPublishTarget(it)
                 }.apply {
-                    add(localTarget)
+                    add(PublishConfigurator.getDefaultLocalMavenPublishTarget(project))
                 }
 
             targets.all {
-                checkNotNull(it.releaseRepositoryUrl) {
-                    "releaseRepositoryUrl of ${it.name} is required to be set"
+                checkNotNull(it.repositoryUrl) {
+                    "releaseRepositoryUrl of ${it.taskName} is required to be set"
                 }
                 configurer.configureTarget(it)
             }
@@ -123,7 +118,7 @@ class AarGeneratorPlugin : Plugin<Project>, PluginLogger {
         logEndRegion("End apply $pluginClassName for $project")
     }
 
-    private fun configureJavadoc(project: Project) {
+    private fun configureJavadocTask(project: Project) {
         project.tasks.withType(Javadoc::class.java).configureEach {
             val options = it.options as StandardJavadocDocletOptions
             if (JavaVersion.current().isJava9Compatible) {

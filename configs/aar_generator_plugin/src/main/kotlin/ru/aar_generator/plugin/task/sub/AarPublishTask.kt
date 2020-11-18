@@ -57,7 +57,7 @@ open class AarPublishTask : DefaultTask(),
 //                        }
 //
 //                        /* Setup Publication options */
-//                        publishing.publications.create("LongRoadPublish", MavenPublication::class.java) { publication ->
+//                        publications.create("LongRoadPublish", MavenPublication::class.java) { publication ->
 //                            publication.configurePomDependencies(afterEvaluatedProject, this@run)
 //                            publication.configurePublishArtifact(afterEvaluatedProject, this@run)
 //                        }
@@ -70,7 +70,7 @@ open class AarPublishTask : DefaultTask(),
                         }
 
                         /* Setup Publication options */
-                        publishing.publications.create(
+                        publications.create(
                             "CUSTOM_PUBLICATION_NAME",
                             MavenPublication::class.java
                         ) {
@@ -159,7 +159,7 @@ open class AarPublishTask : DefaultTask(),
                     project: Project,
                     logger: PluginLogger
                 ) {
-/*                    val publication = project.publishing.publications.getByName(PUBLICATION_NAME) as MavenPublication
+/*                    val publication = project.publications.getByName(PUBLICATION_NAME) as MavenPublication
 
                     from(afterEvaluatedProject.components.findByName("debug"))
 

@@ -9,7 +9,7 @@ apply plugin: 'kotlin-kapt'
 //    cfg.applyForAllSubProjectOptionApi.enable()
 //}
 
-project.version("0.0.1")
+//project.version("0.0.1")
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
