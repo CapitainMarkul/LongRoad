@@ -17,10 +17,7 @@ class PublishConfigurator(
         private const val TYPE_BUILD = "debug"
         private const val GENERATE_ANDROID_SOURCE_JAR_TASK = "androidSourcesJar"
 
-        /* Публикация в локальный Maven */
-        private const val MAVEN_PUBLISH_TARGET = "local"
-        private const val MAVEN_LOCAL_REPOSITORY_NAME = MAVEN_PUBLISH_TARGET
-
+        private const val MAVEN_LOCAL_REPOSITORY_NAME = "local"
         private const val MAVEN_INSTALL_TASK_NAME = "installArchives"
         fun getDefaultLocalMavenPublishTarget(project: Project) =
             LocalMavenPublishTarget(MAVEN_INSTALL_TASK_NAME, project.mavenLocalUrl())
@@ -44,7 +41,7 @@ class PublishConfigurator(
         project.tasks.register(target.taskName) { task ->
             project.publications.all { publication ->
                 val publishTaskName = "publish${publication.name.capitalize()}Publication" +
-                        "To${MAVEN_PUBLISH_TARGET.capitalize()}Repository"
+                        "To${MAVEN_LOCAL_REPOSITORY_NAME.capitalize()}Repository"
 
                 /* Зависимость указанной task'и от publishTaskName */
                 task.dependsOn(project.tasks.named(publishTaskName))
@@ -69,8 +66,6 @@ class PublishConfigurator(
         }
     }
 
-    //TODO: ВОТ ЗДЕСЬ ЗАКОНЧИЛ!
-
     private fun configureFinalPom(
         publication: MavenPublication,
         groupId: String = project.group as String,
@@ -81,6 +76,7 @@ class PublishConfigurator(
         publication.artifactId = artifactId
         publication.version = version
 
+        //TODO: Можно заполнять из gradle.properties
 //        publication.pom { pom ->
 //            pom.name.set("publishPom.name")
 //            pom.description.set("publishPom.description")

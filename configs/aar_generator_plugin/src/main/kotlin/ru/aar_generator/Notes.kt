@@ -1,4 +1,4 @@
-package ru.aar_generator.gradle
+package ru.aar_generator
 
 /*** Регистрация task'и в проекте. Регистрация происходит в момент Sync'а проекта */
 /* override fun apply(project: Project) {

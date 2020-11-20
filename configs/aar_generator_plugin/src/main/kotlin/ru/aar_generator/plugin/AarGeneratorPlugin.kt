@@ -1,21 +1,15 @@
 package ru.aar_generator.plugin
 
-import org.gradle.api.JavaVersion
-import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
-import org.gradle.api.tasks.javadoc.Javadoc
-import org.gradle.external.javadoc.StandardJavadocDocletOptions
 import org.gradle.util.VersionNumber
-import ru.aar_generator.plugin.publish.PublishConfigurator
-import ru.aar_generator.plugin.publish.PublishConfigurator.LocalMavenPublishTarget
 import ru.aar_generator.logger.PluginLogger
 import ru.aar_generator.plugin.config.PluginConfigurator
+import ru.aar_generator.plugin.publish.PublishConfigurator
+import ru.aar_generator.plugin.utils.hasPlugin
 
 class AarGeneratorPlugin : Plugin<Project>, PluginLogger {
-
-    //TODO: подумать, как с этим вести разработку. Мешает ли settings.gradle?
 
     //TODO: 0. Добавить в конфигурацию возможность передать список модулей, для игнорирования
     //TODO: 1. Скрипты для изменения build.gradle Linux/Windows
@@ -29,12 +23,16 @@ class AarGeneratorPlugin : Plugin<Project>, PluginLogger {
         private const val AAR_GENERATOR_PLUGIN_NAME = "aarGeneratorPlugin"
         private const val AAR_GENERATOR_PLUGIN_CONFIG_NAME = "aarGeneratorPluginConfig"
 
+
         private const val MAVEN_AAR_GROUP = "ru.aar_generator"
         private const val MAVEN_AAR_VERSION = "0.0.1"
 
         private val SUPPORT_GRADLE_VERSION = VersionNumber(6, 6, 0, null)
 
         const val AAR_GENERATOR_PLUGIN_TASK_GROUP = "aar generator task group"
+
+        /* Gradle Plugin - android library */
+        private const val PLUGIN_ANDROID_LIBRARY = "com.android.library"
     }
 
     private val pluginClassName: String = AarGeneratorPlugin::class.java.simpleName
@@ -70,6 +68,7 @@ class AarGeneratorPlugin : Plugin<Project>, PluginLogger {
 
         // 5. Применение AarGeneratorPlugin для подпроектов текущего проекта
         project.subprojects.forEach { subProject ->
+            //FIXME: Вот это нужно поправить, сделать проверку на hasPlugin ("com.android.library")
             if (subProject.name != "app" && subProject.name != "LongRoad") {
                 subProject.afterEvaluate { afterEvaluateProject ->
                     afterEvaluateProject.plugins.apply(AarGeneratorPlugin::class.java)
@@ -85,49 +84,29 @@ class AarGeneratorPlugin : Plugin<Project>, PluginLogger {
         project.group = MAVEN_AAR_GROUP
         project.version = MAVEN_AAR_VERSION
 
-
 //        val pom = MavenPublishPom.fromProject(project)
 //        configureJavadocTask(project)
 
+        // 8. После конфигурирования проекта, запускаем конфигурирование публикации
         project.afterEvaluate { projectAfterEvaluate ->
-            val configurer = PublishConfigurator(project)
+            with(PublishConfigurator(project)) {
+                configureTarget(
+                    PublishConfigurator.getDefaultLocalMavenPublishTarget(project)
+                )
 
-            val targets: NamedDomainObjectContainer<LocalMavenPublishTarget> =
-                project.container(LocalMavenPublishTarget::class.java) {
-                    LocalMavenPublishTarget(it)
-                }.apply {
-                    add(PublishConfigurator.getDefaultLocalMavenPublishTarget(project))
+                if (projectAfterEvaluate.hasPlugin(PLUGIN_ANDROID_LIBRARY)) {
+                    logSimple("SIZE: ${project.components.size}")
+
+                    project.components.forEach {
+                        logSimple("${it.name}")
+                    }
+
+                    configureAndroidArtifacts()
                 }
-
-            targets.all {
-                checkNotNull(it.repositoryUrl) {
-                    "releaseRepositoryUrl of ${it.taskName} is required to be set"
-                }
-                configurer.configureTarget(it)
-            }
-
-            if (projectAfterEvaluate.plugins.hasPlugin("com.android.library")) {
-                configurer.configureAndroidArtifacts()
             }
         }
-
-        // Регистрируем созданные Task'и. Регистрация происходит в момент Sync'а проекта
-//            taskConfigureAndRegister(it, extension.getCurrentConfiguration())
-//        }
 
         logEndRegion("End apply $pluginClassName for $project")
-    }
-
-    private fun configureJavadocTask(project: Project) {
-        project.tasks.withType(Javadoc::class.java).configureEach {
-            val options = it.options as StandardJavadocDocletOptions
-            if (JavaVersion.current().isJava9Compatible) {
-                options.addBooleanOption("html5", true)
-            }
-            if (JavaVersion.current().isJava8Compatible) {
-                options.addStringOption("Xdoclint:none", "-quiet")
-            }
-        }
     }
 
 /*    private fun setupConfiguration(project: Project, extension: AarGeneratorPluginConfig) {
