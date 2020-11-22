@@ -21,11 +21,11 @@ interface VariantOptionApi : PluginConfigOption {
 
     /*** Возможные конфигурации проекта */
     enum class Platform(val platformName: String) {
-        DEBUG("Debug"), // TODO() <==== Эту потом удалить
-        X86_64("X86_64"),
-        ARM_64("Arm64"),
-        ARM_7A("Armv7a"),
-        MULTI("Multi")
+        DEBUG("debug"), // TODO() <==== Эту потом удалить
+        X86_64("x86_64"),
+        ARM_64("arm64"),
+        ARM_7A("armv7a"),
+        MULTI("multi")
     }
 
     /*** Переменная для изменения */

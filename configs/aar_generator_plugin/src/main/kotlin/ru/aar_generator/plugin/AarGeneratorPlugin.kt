@@ -1,5 +1,6 @@
 package ru.aar_generator.plugin
 
+import com.android.build.gradle.internal.tasks.factory.registerTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
@@ -7,6 +8,8 @@ import org.gradle.util.VersionNumber
 import ru.aar_generator.logger.PluginLogger
 import ru.aar_generator.plugin.config.PluginConfigurator
 import ru.aar_generator.plugin.publish.PublishConfigurator
+import ru.aar_generator.plugin.task.AarPublishTask
+import ru.aar_generator.plugin.task.AarScriptTask
 import ru.aar_generator.plugin.utils.hasPlugin
 
 class AarGeneratorPlugin : Plugin<Project>, PluginLogger {
@@ -29,7 +32,7 @@ class AarGeneratorPlugin : Plugin<Project>, PluginLogger {
 
         private val SUPPORT_GRADLE_VERSION = VersionNumber(6, 6, 0, null)
 
-        const val AAR_GENERATOR_PLUGIN_TASK_GROUP = "aar generator task group"
+        const val AAR_GENERATOR_PLUGIN_TASK_GROUP = "aar generator tasks"
 
         /* Gradle Plugin - android library */
         private const val PLUGIN_ANDROID_LIBRARY = "com.android.library"
@@ -68,9 +71,9 @@ class AarGeneratorPlugin : Plugin<Project>, PluginLogger {
 
         // 5. Применение AarGeneratorPlugin для подпроектов текущего проекта
         project.subprojects.forEach { subProject ->
-            //FIXME: Вот это нужно поправить, сделать проверку на hasPlugin ("com.android.library")
-            if (subProject.name != "app" && subProject.name != "LongRoad") {
-                subProject.afterEvaluate { afterEvaluateProject ->
+            subProject.afterEvaluate { afterEvaluateProject ->
+                logSimple("SUBPROJECT: ${afterEvaluateProject.name} hasPlugin ${afterEvaluateProject.hasPlugin(PLUGIN_ANDROID_LIBRARY)}")
+                if (subProject.hasPlugin(PLUGIN_ANDROID_LIBRARY)) {
                     afterEvaluateProject.plugins.apply(AarGeneratorPlugin::class.java)
                 }
             }
@@ -95,89 +98,28 @@ class AarGeneratorPlugin : Plugin<Project>, PluginLogger {
                 )
 
                 if (projectAfterEvaluate.hasPlugin(PLUGIN_ANDROID_LIBRARY)) {
-                    logSimple("SIZE: ${project.components.size}")
-
-                    project.components.forEach {
-                        logSimple("${it.name}")
-                    }
-
-                    configureAndroidArtifacts()
+                    configureAndroidArtifacts(currentConfig.getCurrentConfiguration().targetPlatform)
                 }
             }
         }
+
+        val isRootProject = project.parent == null
+
+        // 10. Регистрация AarScriptTask'и (пока только для Root gradle файла)
+        if(isRootProject) {
+            logSimple("Register AarScriptTask for ${project.name} project")
+            project.tasks.registerTask(AarScriptTask.taskCreator(project))
+        }
+
+        // 9. Регистрация AarPublishTask'и
+        project.tasks.registerTask(AarPublishTask.taskCreator(isRootProject))
+
+        // 10. Регистрация AarScriptTask'и (пока только для Root gradle файла)
+//        if(project.parent == null) {
+//            logSimple("Register AarScriptTask for ${project.name} project")
+//            project.tasks.registerTask(AarScriptTask.taskCreator(project))
+//        }
 
         logEndRegion("End apply $pluginClassName for $project")
     }
-
-/*    private fun setupConfiguration(project: Project, extension: AarGeneratorPluginConfig) {
-        logSimple("Selected config: ${extension.targetPlatform}")
-    }*/
-
-    /*    private fun taskConfigureAndRegister(project: Project, extension: AarGeneratorPluginConfig) {
-//        project.showAllSubProjects()
-//        project.showAllTasks(false)
-
-        project.afterEvaluate { rootProject ->
-            rootProject.subprojects { subProject ->
-                subProject.afterEvaluate { evaluateSubProject ->
-                    evaluateSubProject.plugins.apply(PLUGIN_MAVEN_PUBLISH)
-
-                    if (evaluateSubProject.hasPlugin(PLUGIN_ANDROID_LIBRARY)) {
-                        logSimple("Configure $evaluateSubProject")
-
-                         Register Custom Task'и
-                        with(evaluateSubProject.tasks) {
-                            registerTask(AarMainTask.taskCreator(extension))
-//                            registerTask(AarDependencyTask.taskCreator())
-                            registerTask(AarPublishTask.taskCreator(evaluateSubProject, extension))
-
-                            extension.targetPlatform?.platformName?.let {
-
-                                val clearTask = getByName(TASK_CLEAN_PROJECT)
-                                    .doFirst { logSimple("clearTaskDoFirst") }
-                                    .doLast { logSimple("clearTaskDoLast") }
-
-
-                                val buildAarTask =
-                                    getByName(TASK_BUNDLE_DEBUG_AAR_FOR_TEST.format(it))
-                                        .dependsOn(clearTask)
-                                        .mustRunAfter(clearTask)
-
-
-//                                val buildAarTask =
-//                                    getByName(AarDependencyTask.TASK_NAME)
-////                                        .dependsOn(clearTask)
-//                                        .mustRunAfter(clearTask)
-//                                        .doFirst { logSimple("buildAarTaskDoFirst") }
-//                                        .doLast { logSimple("buildAarTaskDoLast") }
-
-                                val publishTask = getByName(AarPublishTask.TASK_NAME)
-                                    .mustRunAfter(TASK_BUNDLE_DEBUG_AAR_FOR_TEST.format(it))
-                                    .doFirst { logSimple("publishTaskDoFirst") }
-                                    .doLast { logSimple("publishTaskDoLast") }
-
-                                val publishToMavenTask = getByName(MavenPublishPlugin.PUBLISH_LOCAL_LIFECYCLE_TASK_NAME)
-                                    .mustRunAfter(publishTask)
-                                    .doFirst { logSimple("publishToMavenTaskDoFirst") }
-                                    .doLast { logSimple("publishToMavenTaskDoLast") }
-
-                                val mainTask = getByPath(AarMainTask.TASK_NAME)
-                                    .doFirst { logSimple("mainTaskDoFirst") }
-                                    .doLast { logSimple("mainTaskDoLast") }
-
-                                mainTask
-                                    .dependsOn(clearTask)
-                                    .dependsOn(TASK_BUNDLE_DEBUG_AAR_FOR_TEST.format(it))
-                                    .mustRunAfter(clearTask)
-//                                    .dependsOn(buildAarTask)
-                                    .dependsOn(publishTask)
-                                    .dependsOn(publishToMavenTask)
-
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }*/
 }

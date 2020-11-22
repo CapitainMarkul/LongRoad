@@ -2,9 +2,8 @@ package ru.aar_generator.plugin.publish
 
 import org.gradle.api.Project
 import org.gradle.api.publish.maven.MavenPublication
+import ru.aar_generator.plugin.config.option.variant.VariantOptionApi
 import ru.aar_generator.plugin.utils.*
-import ru.aar_generator.plugin.utils.publications
-import ru.aar_generator.plugin.utils.publishing
 import java.net.URI
 
 class PublishConfigurator(
@@ -14,9 +13,9 @@ class PublishConfigurator(
     companion object {
         private const val PUBLICATION_NAME = "maven"
 
-        private const val TYPE_BUILD = "debug"
         private const val GENERATE_ANDROID_SOURCE_JAR_TASK = "androidSourcesJar"
 
+        private const val DEBUG_BUILD_TYPE_PREFFIX = "debug"
         private const val MAVEN_LOCAL_REPOSITORY_NAME = "local"
         private const val MAVEN_INSTALL_TASK_NAME = "installArchives"
         fun getDefaultLocalMavenPublishTarget(project: Project) =
@@ -50,13 +49,26 @@ class PublishConfigurator(
     }
 
     /*** Конфигурирование Android Artifact */
-    fun configureAndroidArtifacts() {
+    fun configureAndroidArtifacts(buildVariant: VariantOptionApi.Platform?) {
+        if (buildVariant == null) throw Exception("Need configured 'variantOptionApi' params!")
+
         project.createMavenPublication(PUBLICATION_NAME) { publication ->
             configureFinalPom(publication)
         }
 
         with(project.getMavenPublication(PUBLICATION_NAME)) {
-            from(project.components.getByName(TYPE_BUILD))
+            /* Формируем строку типа 'x86_64Debug' */
+            val buildTypeName =
+                if (buildVariant == VariantOptionApi.Platform.DEBUG) buildVariant.platformName
+                else "${buildVariant.platformName}${DEBUG_BUILD_TYPE_PREFFIX.capitalize()}"
+
+            try {
+                from(project.components.getByName(buildTypeName))
+            } catch (e: Exception) {
+                /* Некоторые модули имеют только Debug/Release build variants,
+                 * для них формируем строку 'debug' */
+                from(project.components.getByName("debug"))
+            }
 
             val androidSourcesJar = project.tasks.register(
                 GENERATE_ANDROID_SOURCE_JAR_TASK,
