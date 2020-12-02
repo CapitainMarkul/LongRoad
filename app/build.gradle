@@ -40,7 +40,7 @@ dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
 
     implementation 'ru.aar_generator:engine_support:0.0.1'
-//    implementation project(':engine_support')
+//    implementation 'ru.aar_generator:engine_support:0.0.1'
 
     implementation support.supportLibrary
 

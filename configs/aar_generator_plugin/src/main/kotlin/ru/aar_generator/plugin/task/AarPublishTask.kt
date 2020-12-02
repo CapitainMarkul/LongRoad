@@ -31,6 +31,7 @@ open class AarPublishTask : DefaultTask(), PluginLogger {
                     get() = AarPublishTask::class.java
 
                 override fun configure(task: AarPublishTask): Unit = task.run {
+
                     // Устанавливаем группу для задачи
                     group = AarGeneratorPlugin.AAR_GENERATOR_PLUGIN_TASK_GROUP
 

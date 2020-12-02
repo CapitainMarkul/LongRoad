@@ -19,7 +19,7 @@ object AndroidGameEngine : LifecycleObserver {
     private lateinit var gameView: GLSurfaceView
 
     fun createGame(context: Context, lifecycleOwner: LifecycleOwner): View {
-        Log.e("TAG", "From ru.palestra.engine_support.AndroidGameEngine")
+        Log.e("TAG", "From EDITED2! ru.palestra.engine_support.AndroidGameEngine")
         TestLog().logTest()
 
 

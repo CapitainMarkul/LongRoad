@@ -3,11 +3,6 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 
-//apply plugin: 'aar_generator_plugin'
-//aarGeneratorPluginConfig { cfg ->
-//    cfg.configureForDebug()
-//}
-
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
@@ -45,6 +40,7 @@ android {
 
 dependencies {
     implementation project(':engine')
+//    implementation 'LongRoad.debug.ru.aar_generator:engine:0.0.1'
 
     implementation support.supportLibrary
 

@@ -30,6 +30,6 @@ interface VariantOptionApi : PluginConfigOption {
 
     /*** Переменная для изменения */
     interface Variable {
-        var targetPlatform: Platform?
+        var targetPlatform: Platform
     }
 }

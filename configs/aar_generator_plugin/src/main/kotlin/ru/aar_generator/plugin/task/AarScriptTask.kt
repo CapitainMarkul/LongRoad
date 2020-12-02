@@ -24,11 +24,15 @@ open class AarScriptTask : DefaultTask(), PluginLogger {
         private const val SCRIPT_NAME = "convert_project_to_aar_script.sh"
 
         private const val SCRIPT_PROJECT_DIR_OPTION = "-p"
-
-        private const val SCRIPT_CONFIG_LOG = "%s %s %s"
+        private const val SCRIPT_PROJECT_NAME_OPTION = "-n"
+        private const val SCRIPT_PROJECT_FLAVOUR_OPTION = "-f"
 
         /*** Task Creator */
-        fun taskCreator(project: Project): TaskCreationAction<AarScriptTask> =
+        fun taskCreator(
+            project: Project,
+            rootProjectName: String,
+            platformName: String
+        ): TaskCreationAction<AarScriptTask> =
             object : TaskCreationAction<AarScriptTask>() {
 
                 override val name: String = TASK_NAME
@@ -54,7 +58,9 @@ open class AarScriptTask : DefaultTask(), PluginLogger {
                             } else {
                                 it.commandLine(
                                     "bash", scriptPath,
-                                    SCRIPT_PROJECT_DIR_OPTION, project.projectDir
+                                    SCRIPT_PROJECT_DIR_OPTION, project.projectDir,
+                                    SCRIPT_PROJECT_NAME_OPTION, rootProjectName,
+                                    SCRIPT_PROJECT_FLAVOUR_OPTION, platformName
                                 )
                             }
                         }

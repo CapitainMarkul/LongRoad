@@ -50,7 +50,7 @@ class PublishConfigurator(
 
     /*** Конфигурирование Android Artifact */
     fun configureAndroidArtifacts(buildVariant: VariantOptionApi.Platform?) {
-        if (buildVariant == null) throw Exception("Need configured 'variantOptionApi' params!")
+        if (buildVariant == null) throw Exception("Need configure 'variantOptionApi' params!")
 
         project.createMavenPublication(PUBLICATION_NAME) { publication ->
             configureFinalPom(publication)
