@@ -6,6 +6,7 @@ apply plugin: 'aar_generator_plugin'
 aarGeneratorPluginConfig { cfg ->
     cfg.variantOptionApi.configureForDebugVariable()
     cfg.replaceProjectToAarOptionApi.disable()
+    cfg.milestonesVersionOptionApi.setMilestonesVersion("20.7126")
 }
 
 buildscript {

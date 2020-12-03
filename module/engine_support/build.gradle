@@ -40,7 +40,7 @@ android {
 
 dependencies {
     implementation project(':engine')
-//    implementation 'LongRoad.debug.ru.aar_generator:engine:0.0.1'
+//    implementation 'ru.aar_generator.Courier_20_7126_x86_64:engine:0.0.1'
 
     implementation support.supportLibrary
 

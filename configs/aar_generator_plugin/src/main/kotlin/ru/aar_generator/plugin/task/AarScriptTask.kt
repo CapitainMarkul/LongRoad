@@ -26,12 +26,14 @@ open class AarScriptTask : DefaultTask(), PluginLogger {
         private const val SCRIPT_PROJECT_DIR_OPTION = "-p"
         private const val SCRIPT_PROJECT_NAME_OPTION = "-n"
         private const val SCRIPT_PROJECT_FLAVOUR_OPTION = "-f"
+        private const val SCRIPT_PROJECT_MILESTONES_OPTION = "-m"
 
         /*** Task Creator */
         fun taskCreator(
             project: Project,
             rootProjectName: String,
-            platformName: String
+            platformName: String,
+            milestonesVersion: String
         ): TaskCreationAction<AarScriptTask> =
             object : TaskCreationAction<AarScriptTask>() {
 
@@ -60,7 +62,8 @@ open class AarScriptTask : DefaultTask(), PluginLogger {
                                     "bash", scriptPath,
                                     SCRIPT_PROJECT_DIR_OPTION, project.projectDir,
                                     SCRIPT_PROJECT_NAME_OPTION, rootProjectName,
-                                    SCRIPT_PROJECT_FLAVOUR_OPTION, platformName
+                                    SCRIPT_PROJECT_FLAVOUR_OPTION, platformName,
+                                    SCRIPT_PROJECT_MILESTONES_OPTION, milestonesVersion
                                 )
                             }
                         }

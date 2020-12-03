@@ -1,5 +1,7 @@
 package ru.aar_generator.plugin.config
 
+import ru.aar_generator.plugin.config.option.milestones.MilestonesVersionOption
+import ru.aar_generator.plugin.config.option.milestones.MilestonesVersionOptionApi
 import ru.aar_generator.plugin.config.option.script.ReplaceProjectToAarOption
 import ru.aar_generator.plugin.config.option.script.ReplaceProjectToAarOptionApi
 import ru.aar_generator.plugin.config.option.variant.VariantOption
@@ -11,10 +13,12 @@ open class PluginConfigurator : PluginConfiguratorApi {
     /*** Файл конфигурации плагина */
     class Config :
         VariantOptionApi.Variable,
-        ReplaceProjectToAarOptionApi.Variable {
+        ReplaceProjectToAarOptionApi.Variable,
+        MilestonesVersionOptionApi.Variable {
 
         override var targetPlatform: VariantOptionApi.Platform = VariantOptionApi.Platform.MULTI
         override var needRunReplaceProjectToAarScript: Boolean = false
+        override var milestonesVersion: String = ""
 
         fun createConfigurationLog(): String {
             return StringBuilder().apply {
@@ -22,6 +26,7 @@ open class PluginConfigurator : PluginConfiguratorApi {
                 append(createConfigurationLog(
                     "needRunReplaceProjectToAarScript", needRunReplaceProjectToAarScript
                 ))
+                append(createConfigurationLog("milestonesVersion", milestonesVersion))
             }.toString()
         }
 
@@ -44,4 +49,7 @@ open class PluginConfigurator : PluginConfiguratorApi {
 
     override val replaceProjectToAarOptionApi: ReplaceProjectToAarOptionApi =
         ReplaceProjectToAarOption(currentPluginConfig)
+
+    override val milestonesVersionOptionApi: MilestonesVersionOptionApi =
+        MilestonesVersionOption(currentPluginConfig)
 }

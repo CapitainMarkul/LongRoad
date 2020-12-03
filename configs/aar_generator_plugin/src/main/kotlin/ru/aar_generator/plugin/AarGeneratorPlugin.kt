@@ -89,9 +89,12 @@ class AarGeneratorPlugin : Plugin<Project>, PluginLogger {
         // 7. Формирование базовых параметров проекта, на основе которых будет создан итоговый .aar
         val rootProjectName = project.rootProject.name
         val variantOptionName = currentConfig.getCurrentConfiguration().targetPlatform.platformName
+        val milestonesVersion = currentConfig.getCurrentConfiguration()
+            .milestonesVersion.replace('.', '_')
+
         project.group =
-            if(rootProjectName.isNotEmpty()) "$rootProjectName.$variantOptionName.$MAVEN_AAR_GROUP"
-            else "$variantOptionName.$MAVEN_AAR_GROUP"
+            if(rootProjectName.isEmpty()) "$MAVEN_AAR_GROUP.${milestonesVersion}_$variantOptionName"
+            else "$MAVEN_AAR_GROUP.${rootProjectName}_${milestonesVersion}_$variantOptionName."
         project.version = MAVEN_AAR_VERSION
 
         // 8. После конфигурирования проекта, запускаем конфигурирование публикации
@@ -114,7 +117,9 @@ class AarGeneratorPlugin : Plugin<Project>, PluginLogger {
         if(isRootProject && currentConfig.getCurrentConfiguration().needRunReplaceProjectToAarScript) {
             logSimple("Register AarScriptTask for ${project.name} project")
             project.tasks.registerTask(
-                AarScriptTask.taskCreator(project, project.name, variantOptionName)
+                AarScriptTask.taskCreator(
+                    project, project.name, variantOptionName, milestonesVersion
+                )
             )
         }
 
