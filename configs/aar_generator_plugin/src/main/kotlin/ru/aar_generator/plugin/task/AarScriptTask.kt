@@ -28,12 +28,16 @@ open class AarScriptTask : DefaultTask(), PluginLogger {
         private const val SCRIPT_PROJECT_FLAVOUR_OPTION = "-f"
         private const val SCRIPT_PROJECT_MILESTONES_OPTION = "-m"
 
+        /*** Параметры запуска скрипта */
+        class ScriptParams(
+            val platformName: String,
+            val milestonesVersion: String
+        )
+
         /*** Task Creator */
         fun taskCreator(
-            project: Project,
-            rootProjectName: String,
-            platformName: String,
-            milestonesVersion: String
+            rootProject: Project,
+            scriptParams: ScriptParams
         ): TaskCreationAction<AarScriptTask> =
             object : TaskCreationAction<AarScriptTask>() {
 
@@ -46,13 +50,13 @@ open class AarScriptTask : DefaultTask(), PluginLogger {
                     group = AarGeneratorPlugin.AAR_GENERATOR_PLUGIN_TASK_GROUP
 
                     doLast {
-                        val scriptPath = project
-                            .fileTree(project.projectDir)
+                        val scriptPath = rootProject
+                            .fileTree(rootProject.projectDir)
                             .filter { it.isFile && it.name == SCRIPT_NAME}
                             .singleFile
                         logSimple(scriptPath.absolutePath)
 
-                        project.exec {
+                        rootProject.exec {
                             if (System.getProperty("os.name")
                                     .toLowerCase(Locale.ROOT).contains("windows")
                             ) {
@@ -60,10 +64,10 @@ open class AarScriptTask : DefaultTask(), PluginLogger {
                             } else {
                                 it.commandLine(
                                     "bash", scriptPath,
-                                    SCRIPT_PROJECT_DIR_OPTION, project.projectDir,
-                                    SCRIPT_PROJECT_NAME_OPTION, rootProjectName,
-                                    SCRIPT_PROJECT_FLAVOUR_OPTION, platformName,
-                                    SCRIPT_PROJECT_MILESTONES_OPTION, milestonesVersion
+                                    SCRIPT_PROJECT_DIR_OPTION, rootProject.projectDir,
+                                    SCRIPT_PROJECT_NAME_OPTION, rootProject.name,
+                                    SCRIPT_PROJECT_FLAVOUR_OPTION, scriptParams.platformName,
+                                    SCRIPT_PROJECT_MILESTONES_OPTION, scriptParams.milestonesVersion
                                 )
                             }
                         }

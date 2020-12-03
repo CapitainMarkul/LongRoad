@@ -109,18 +109,20 @@ class AarGeneratorPlugin : Plugin<Project>, PluginLogger {
         }
 
         val isRootProject = project.parent == null
+        val needAutoRunScriptTask =
+            currentConfig.getCurrentConfiguration().needRunReplaceProjectToAarScript
 
         // 9. Регистрация AarPublishTask'и
-        project.tasks.registerTask(AarPublishTask.taskCreator(isRootProject))
+        project.tasks.registerTask(AarPublishTask.taskCreator(isRootProject, needAutoRunScriptTask))
 
         // 10. Регистрация AarScriptTask'и (пока только для Root gradle файла)
-        if(isRootProject && currentConfig.getCurrentConfiguration().needRunReplaceProjectToAarScript) {
+        if(isRootProject) {
             logSimple("Register AarScriptTask for ${project.name} project")
-            project.tasks.registerTask(
-                AarScriptTask.taskCreator(
-                    project, project.name, variantOptionName, milestonesVersion
-                )
+            val taskParams = AarScriptTask.Companion.ScriptParams(
+                variantOptionName, milestonesVersion
             )
+
+            project.tasks.registerTask(AarScriptTask.taskCreator(project, taskParams))
         }
 
         logEndRegion("End apply $pluginClassName for $project")
