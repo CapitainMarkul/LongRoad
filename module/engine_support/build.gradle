@@ -40,6 +40,18 @@ android {
 
 dependencies {
     implementation project(':engine')
+//    implementation project( ':project')
+//    implementation project(":project")
+//    implementation project(path: ':project')
+//    api project(':project')
+//    api project( ':project')
+//    api project(":project")
+//    api project(path: ':project')
+//    testImplementation project(':project')
+//    testImplementation project( ':project')
+//    testImplementation project(":project")
+//    testImplementation project(path: ':project')
+
 //    implementation 'ru.aar_generator.Courier_20_7126_x86_64:engine:0.0.1'
 
     implementation support.supportLibrary

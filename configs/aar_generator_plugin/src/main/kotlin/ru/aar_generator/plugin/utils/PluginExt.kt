@@ -39,7 +39,3 @@ fun Project.getMavenPublication(publicationName: String): MavenPublication =
 /*** Быстрый доступ к MavenLocal url */
 fun Project.mavenLocalUrl() =
     repositories.mavenLocal().url.toASCIIString()
-
-/*** Быстрый доступ к PluginConfig */
-internal inline val Project.publishExtension: PluginConfigurator.Config
-    get() = project.extensions.getByType(PluginConfigurator.Config::class.java)

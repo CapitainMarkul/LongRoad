@@ -54,8 +54,8 @@ class AarGeneratorPlugin : Plugin<Project>, PluginLogger {
                 "Must be gradle version ${gradleVersion.major}.${gradleVersion.minor}.${gradleVersion.micro} or higher!"
             )
 
-        // 1. Читаем конфигурацию, которую настроили в root.build.gradle
-        val currentConfig = project.extensions.create<PluginConfigurator>(
+        // 1. Создаем конфигурацию, которую объявили в root.build.gradle
+        val pluginConfigurator = project.extensions.create<PluginConfigurator>(
             AAR_GENERATOR_PLUGIN_CONFIG_NAME, PluginConfigurator::class.java
         )
 
@@ -63,11 +63,11 @@ class AarGeneratorPlugin : Plugin<Project>, PluginLogger {
         project.extensions.configure(PluginConfigurator::class.java) {
             val extensionInner =
                 project.rootProject.extensions.getByType(PluginConfigurator::class.java)
-            currentConfig.setCurrentConfiguration(extensionInner.getCurrentConfiguration())
+            pluginConfigurator.setCurrentConfiguration(extensionInner.getCurrentConfiguration())
         }
 
         // 3. Логирование конфигурации для проекта
-        project.showProjectConfiguration(currentConfig.getCurrentConfiguration())
+        project.showProjectConfiguration(pluginConfigurator.getCurrentConfiguration())
 
         // 4. Логирование списка подпроектов для текущего проекта
         project.showAllSubProjects()
@@ -75,7 +75,13 @@ class AarGeneratorPlugin : Plugin<Project>, PluginLogger {
         // 5. Применение AarGeneratorPlugin для подпроектов текущего проекта
         project.subprojects.forEach { subProject ->
             subProject.afterEvaluate { afterEvaluateProject ->
-                logSimple("SUBPROJECT: ${afterEvaluateProject.name} hasPlugin ${afterEvaluateProject. hasPlugin(PLUGIN_ANDROID_LIBRARY)}")
+                logSimple(
+                    "SUBPROJECT: ${afterEvaluateProject.name} hasPlugin ${
+                        afterEvaluateProject.hasPlugin(
+                            PLUGIN_ANDROID_LIBRARY
+                        )
+                    }"
+                )
                 if (subProject.hasPlugin(PLUGIN_ANDROID_LIBRARY)) {
                     afterEvaluateProject.plugins.apply(AarGeneratorPlugin::class.java)
                 }
@@ -86,43 +92,52 @@ class AarGeneratorPlugin : Plugin<Project>, PluginLogger {
         logSimple("Apply MavenPublishPlugin for ${project.name}")
         project.plugins.apply(MavenPublishPlugin::class.java)
 
-        // 7. Формирование базовых параметров проекта, на основе которых будет создан итоговый .aar
-        val rootProjectName = project.rootProject.name
-        val variantOptionName = currentConfig.getCurrentConfiguration().targetPlatform.platformName
-        val milestonesVersion = currentConfig.getCurrentConfiguration()
-            .milestonesVersion.replace('.', '_')
-
-        project.group =
-            if(rootProjectName.isEmpty()) "$MAVEN_AAR_GROUP.${milestonesVersion}_$variantOptionName"
-            else "$MAVEN_AAR_GROUP.${rootProjectName}_${milestonesVersion}_$variantOptionName."
-        project.version = MAVEN_AAR_VERSION
-
-        // 8. После конфигурирования проекта, запускаем конфигурирование публикации
         project.afterEvaluate { projectAfterEvaluate ->
+            /* Доступ к переменным конфигурации можно получить только после конфигурирования проекта */
+
+            // 7. Формирование базовых параметров проекта, на основе которых будет создан итоговый .aar
+            val rootProjectName = project.rootProject.name
+            val variantOptionName =
+                pluginConfigurator.getCurrentConfiguration().targetPlatform.platformName
+            val milestonesVersion = pluginConfigurator.getCurrentConfiguration()
+                .milestonesVersion.replace('.', '_')
+
+            project.group =
+                if (rootProjectName.isEmpty()) "$MAVEN_AAR_GROUP.${milestonesVersion}_$variantOptionName"
+                else "$MAVEN_AAR_GROUP.${rootProjectName}_${milestonesVersion}_$variantOptionName."
+            project.version = MAVEN_AAR_VERSION
+
+            // 8. После конфигурирования проекта, запускаем конфигурирование публикации
             with(PublishConfigurator(project)) {
                 configureTarget(PublishConfigurator.getDefaultLocalMavenPublishTarget(project))
 
                 if (projectAfterEvaluate.hasPlugin(PLUGIN_ANDROID_LIBRARY)) {
-                    configureAndroidArtifacts(currentConfig.getCurrentConfiguration().targetPlatform)
+                    configureAndroidArtifacts(pluginConfigurator.getCurrentConfiguration().targetPlatform)
                 }
             }
-        }
 
-        val isRootProject = project.parent == null
-        val needAutoRunScriptTask =
-            currentConfig.getCurrentConfiguration().needRunReplaceProjectToAarScript
+            val isRootProject = project.parent == null
+            val needAutoRunScriptTask =
+                pluginConfigurator.getCurrentConfiguration().needRunReplaceProjectToAarScript
 
-        // 9. Регистрация AarPublishTask'и
-        project.tasks.registerTask(AarPublishTask.taskCreator(isRootProject, needAutoRunScriptTask))
-
-        // 10. Регистрация AarScriptTask'и (пока только для Root gradle файла)
-        if(isRootProject) {
-            logSimple("Register AarScriptTask for ${project.name} project")
-            val taskParams = AarScriptTask.Companion.ScriptParams(
-                variantOptionName, milestonesVersion
+            // 9. Регистрация AarPublishTask'и
+            project.tasks.registerTask(
+                AarPublishTask.taskCreator(
+                    isRootProject,
+                    needAutoRunScriptTask
+                )
             )
 
-            project.tasks.registerTask(AarScriptTask.taskCreator(project, taskParams))
+            // 10. Регистрация AarScriptTask'и (пока только для Root gradle файла)
+            if (isRootProject) {
+                logSimple("Register ${AarScriptTask.TASK_NAME} for ${project.name} project")
+                logSimple("with params: $variantOptionName | $milestonesVersion")
+                val taskParams = AarScriptTask.Companion.ScriptParams(
+                    variantOptionName, milestonesVersion
+                )
+
+                project.tasks.registerTask(AarScriptTask.taskCreator(project, taskParams))
+            }
         }
 
         logEndRegion("End apply $pluginClassName for $project")
