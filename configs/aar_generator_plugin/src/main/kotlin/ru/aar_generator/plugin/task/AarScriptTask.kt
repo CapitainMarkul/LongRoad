@@ -76,3 +76,28 @@ open class AarScriptTask : DefaultTask(), PluginLogger {
             }
     }
 }
+
+
+
+class PowerShellUtil {
+
+    fun exec(command: String, args: String) : String {
+
+        val powerShellCommand = ".\\${command} ${args}"
+        val shellCommand = "powershell.exe -ExecutionPolicy Bypass -NoLogo -NonInteractive -NoProfile  -Command \"${powerShellCommand}\""
+
+        println(powerShellCommand)
+
+        return shellCommand
+//        val process = shellCommand.execute()
+//        def out = new StringBuffer()
+//        def err = new StringBuffer()
+//        process.consumeProcessOutput(out, err)
+//        process.waitFor()
+//        if(out.size() > 0 && debug) log.debug out
+//                if(err.size() > 0) log.error err
+    }
+
+//    PowerShellUtil psUtil = new PowerShellUtil()
+//    psUtil.exec(true, 'script.ps1','script-args')
+}
