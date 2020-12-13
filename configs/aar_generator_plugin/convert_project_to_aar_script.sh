@@ -17,7 +17,8 @@ echo "project_dir=$project_dir"
 echo "project_name=$project_name"
 echo "project_flavour=$project_flavour"
 echo "project_milestones=$project_milestones"
-
+echo "==========================="
+echo ""
 #implementation 'ru.aar_generator:$project_name_$project_milestones_$project_flavour.engine_support:0.0.1'
 #implementation project(':engine_support')
 
@@ -31,13 +32,13 @@ testImplementation="testImplementation"
 aar_name="\x27ru.aar_generator:$project_name\_$project_milestones\_$project_flavour."
 aar_version=":0.0.1\x27"
 
-#project(":
+#project(':
 project_1="project(\x27:"
-#project( \x27:
+#project( ':
 project_2="project( \x27:"
-#project(\x22:
+#project(":
 project_3="project(\x22:"
-#project(path: \x27:
+#project(path: ':
 project_4="project(path: \x27:"
 
 #----------------- Implementation -----------------
@@ -95,9 +96,9 @@ replace_test_implementation() {
 }
 
 for gradle_file_dir in $(find $project_dir -name 'build.gradle'); do
-  printf "Конвертируем: $gradle_file_dir "
+  printf "Converting: $gradle_file_dir ... "
   replace_implementation "$gradle_file_dir"
   replace_api "$gradle_file_dir"
   replace_test_implementation "$gradle_file_dir"
-  echo "УСПЕШНО!"
+  echo "DONE!"
 done

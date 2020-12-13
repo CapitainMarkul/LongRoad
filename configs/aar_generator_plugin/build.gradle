@@ -28,6 +28,7 @@ version '0.0.1'
 dependencies {
     implementation gradleApi()
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
+    implementation "com.android.tools.build:gradle:4.0.1"
 }
 
 sourceCompatibility = rootProject.ext.javaVersion
