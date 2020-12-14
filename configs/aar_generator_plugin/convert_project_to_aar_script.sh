@@ -75,6 +75,7 @@ replace_implementation() {
   val_ext_gradle_file=$1
   sed -i -e "s/$old_impl_project_str/$implementation $aar_name/g" -e "/$implementation \x27/s/\x27)/$aar_version/g" $val_ext_gradle_file        #implementation project(':project')
   sed -i -e "s/$old_impl_project_str_space/$implementation $aar_name/g" -e "/$implementation \x27/s/\x27)/$aar_version/g" $val_ext_gradle_file  #implementation project( ':project')
+  sed -i -e "s/$old_impl_project_str_space/$implementation $aar_name/g" -e "/$implementation \x27/s/\x27 )/$aar_version/g" $val_ext_gradle_file  #implementation project( ':project' )
   sed -i -e "s/$old_impl_project_str_double/$implementation $aar_name/g" -e "/$implementation \x27/s/\x22)/$aar_version/g" $val_ext_gradle_file #implementation project(":project")
   sed -i -e "s/$old_impl_project_str_path/$implementation $aar_name/g" -e "/$implementation \x27/s/\x27)/$aar_version/g" $val_ext_gradle_file   #implementation project(path: ':project')
 }
@@ -83,6 +84,7 @@ replace_api() {
   val_ext_gradle_file=$1
   sed -i -e "s/$old_api_project_str/$api $aar_name/g" -e "/$api \x27/s/\x27)/$aar_version/g" $val_ext_gradle_file        #api project(':project')
   sed -i -e "s/$old_api_project_str_space/$api $aar_name/g" -e "/$api \x27/s/\x27)/$aar_version/g" $val_ext_gradle_file  #api project( ':project')
+  sed -i -e "s/$old_api_project_str_space/$api $aar_name/g" -e "/$api \x27/s/\x27 )/$aar_version/g" $val_ext_gradle_file  #api project( ':project' )
   sed -i -e "s/$old_api_project_str_double/$api $aar_name/g" -e "/$api \x27/s/\x22)/$aar_version/g" $val_ext_gradle_file #api project(":project")
   sed -i -e "s/$old_api_project_str_path/$api $aar_name/g" -e "/$api \x27/s/\x27)/$aar_version/g" $val_ext_gradle_file   #api project(path: ':project')
 }
@@ -91,6 +93,7 @@ replace_test_implementation() {
   val_ext_gradle_file=$1
   sed -i -e "s/$old_testImplementation_project_str/$testImplementation $aar_name/g" -e "/$testImplementation \x27/s/\x27)/$aar_version/g" $val_ext_gradle_file        #testImplementation project(':project')
   sed -i -e "s/$old_testImplementation_project_str_space/$testImplementation $aar_name/g" -e "/$testImplementation \x27/s/\x27)/$aar_version/g" $val_ext_gradle_file  #testImplementation project( ':project')
+  sed -i -e "s/$old_testImplementation_project_str_space/$testImplementation $aar_name/g" -e "/$testImplementation \x27/s/\x27 )/$aar_version/g" $val_ext_gradle_file  #testImplementation project( ':project' )
   sed -i -e "s/$old_testImplementation_project_str_double/$testImplementation $aar_name/g" -e "/$testImplementation \x27/s/\x22)/$aar_version/g" $val_ext_gradle_file #testImplementation project(":project")
   sed -i -e "s/$old_testImplementation_project_str_path/$testImplementation $aar_name/g" -e "/$testImplementation \x27/s/\x27)/$aar_version/g" $val_ext_gradle_file   #testImplementation project(path: ':project')
 }

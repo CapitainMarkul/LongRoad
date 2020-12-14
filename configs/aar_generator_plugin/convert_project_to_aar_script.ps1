@@ -71,6 +71,9 @@ function Get-ReplaceImplementation(
             } elseif($modifierLine -match """\)") {
                 #")
                 $resultFile.Add($modifierLine.Replace(""")", $aarVersion))
+            } elseif($modifierLine -match "' \)") {
+                #' )
+                $resultFile.Add($modifierLine.Replace("' )", $aarVersion))
             }
             else {
                 $resultFile.Add($modifierLine)
