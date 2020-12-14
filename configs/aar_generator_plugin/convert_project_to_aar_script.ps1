@@ -23,7 +23,7 @@ $implementation="implementation"
 $api="api"
 $testImplementation="testImplementation"
 
-$aarName="'ru.aar_generator:" + $projectName + "_" + $projectMilestones + "_" + $projectFlavour + "."
+$aarName="'ru.aar_generator." + $projectName + "_" + $projectMilestones + "_" + $projectFlavour + ":"
 $aarVersion=":0.0.1'"
 
 #project(':

@@ -104,7 +104,7 @@ class AarGeneratorPlugin : Plugin<Project>, PluginLogger {
 
             project.group =
                 if (rootProjectName.isEmpty()) "$MAVEN_AAR_GROUP.${milestonesVersion}_$variantOptionName"
-                else "$MAVEN_AAR_GROUP.${rootProjectName}_${milestonesVersion}_$variantOptionName."
+                else "$MAVEN_AAR_GROUP.${rootProjectName}_${milestonesVersion}_$variantOptionName"
             project.version = MAVEN_AAR_VERSION
 
             // 8. После конфигурирования проекта, запускаем конфигурирование публикации

@@ -29,7 +29,7 @@ implementation="implementation"
 api="api"
 testImplementation="testImplementation"
 
-aar_name="\x27ru.aar_generator:$project_name\_$project_milestones\_$project_flavour."
+aar_name="\x27ru.aar_generator.$project_name\_$project_milestones\_$project_flavour:"
 aar_version=":0.0.1\x27"
 
 #project(':
